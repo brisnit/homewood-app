@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "expo export --platform web",
+  "outputDirectory": "dist",
+  "framework": null,
+  "build": {
+    "env": {
+      "EXPO_PUBLIC_BIBLE_PROVIDER": "fallback",
+      "EXPO_PUBLIC_DEVOTIONAL_PROVIDER": "mock"
+    }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+}
