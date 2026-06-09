@@ -11,9 +11,15 @@ export interface NotificationPrefs {
   quietHoursEnd: string; // "07:00"
 }
 
+export interface AudioPrefs {
+  voiceId: string | null; // null = device default voice
+  rate: number; // 0.1–2.0 (1 = normal)
+}
+
 interface Preferences {
   language: string; // code
   notifications: NotificationPrefs;
+  audio: AudioPrefs;
 }
 
 const DEFAULTS: Preferences = {
@@ -27,11 +33,16 @@ const DEFAULTS: Preferences = {
     quietHoursStart: '21:00',
     quietHoursEnd: '07:00',
   },
+  audio: {
+    voiceId: null,
+    rate: 0.9, // a measured, reverent pace for scripture
+  },
 };
 
 interface PreferencesContextValue extends Preferences {
   setLanguage: (code: string) => void;
   setNotification: (key: keyof NotificationPrefs, value: boolean | string) => void;
+  setAudio: (patch: Partial<AudioPrefs>) => void;
 }
 
 const STORAGE_KEY = '@homewood/preferences';
@@ -48,6 +59,7 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
           setPrefs({
             language: parsed.language ?? DEFAULTS.language,
             notifications: { ...DEFAULTS.notifications, ...(parsed.notifications ?? {}) },
+            audio: { ...DEFAULTS.audio, ...(parsed.audio ?? {}) },
           });
         } catch {
           /* keep defaults */
@@ -72,9 +84,14 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     [prefs, persist],
   );
 
+  const setAudio = useCallback(
+    (patch: Partial<AudioPrefs>) => persist({ ...prefs, audio: { ...prefs.audio, ...patch } }),
+    [prefs, persist],
+  );
+
   const value = useMemo<PreferencesContextValue>(
-    () => ({ ...prefs, setLanguage, setNotification }),
-    [prefs, setLanguage, setNotification],
+    () => ({ ...prefs, setLanguage, setNotification, setAudio }),
+    [prefs, setLanguage, setNotification, setAudio],
   );
 
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>;

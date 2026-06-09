@@ -71,6 +71,8 @@ export default function Settings() {
       <SettingsGroup title="Bible Reading">
         <SettingsRow icon="bookmarks-outline" label="My Verses" value={highlightCount > 0 ? String(highlightCount) : undefined} onPress={() => router.push('/settings/my-verses')} />
         <Divider />
+        <SettingsRow icon="headset-outline" label="Audio & Voice" onPress={() => router.push('/settings/voice')} />
+        <Divider />
         <SettingsRow icon="text-outline" label="Red letters" toggle toggleValue={redLetters} onToggle={setRedLetters} />
         <Divider />
         <SettingsRow icon="headset-outline" label="Show audio availability" toggle toggleValue={showAudio} onToggle={setShowAudio} />

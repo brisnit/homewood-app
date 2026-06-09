@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as Speech from 'expo-speech';
 import {
   Screen,
   AppText,
@@ -15,16 +16,14 @@ import { useAsync } from '../src/lib/useAsync';
 import { bibleProvider } from '../src/providers';
 import { BibleVerse } from '../src/providers/bible/types';
 import { useProgress, verseKey } from '../src/state/ProgressProvider';
+import { usePreferences } from '../src/state/PreferencesProvider';
 import { useTheme } from '../src/theme/ThemeProvider';
 import { palette } from '../src/theme/colors';
 import { fonts } from '../src/theme/typography';
 
-/**
- * Bible passage reader. Renders verses with optional red-letter (words of
- * Christ) styling and an audio-availability indicator. Text comes from the
- * active Bible provider; red letters honor both the version's support and the
- * user's toggle passed via the `red` param.
- */
+const RATE_PRESETS = [0.75, 0.9, 1.0, 1.25];
+
+/** Bible passage reader with text-to-speech narration and live verse highlighting. */
 export default function Reader() {
   const params = useLocalSearchParams<{ ref?: string; translation?: string; red?: string }>();
   const router = useRouter();
@@ -36,6 +35,7 @@ export default function Reader() {
   const redLettersOn = params.red !== '0';
 
   const [fontScale, setFontScale] = useState(1);
+  const [activeKey, setActiveKey] = useState<string | null>(null);
   const passage = useAsync(() => bibleProvider.getPassage(reference, translation), [reference, translation]);
 
   return (
@@ -61,7 +61,13 @@ export default function Reader() {
         <ErrorState onRetry={passage.reload} />
       ) : (
         <>
-          {passage.data.audioUrl ? <AudioPlayer reference={reference} translation={translation} /> : null}
+          {passage.data.audioUrl ? (
+            <AudioPlayer
+              verses={passage.data.verses}
+              translation={translation}
+              onActiveVerse={(v) => setActiveKey(v ? verseKey(reference, v.chapter, v.number) : null)}
+            />
+          ) : null}
 
           <View style={styles.hintRow}>
             <Ionicons name="color-wand-outline" size={13} color={colors.textMuted} />
@@ -80,6 +86,7 @@ export default function Reader() {
               reference={reference}
               isHighlighted={isVerseHighlighted}
               onToggleVerse={toggleHighlight}
+              activeKey={activeKey}
             />
           </View>
 
@@ -111,89 +118,147 @@ export default function Reader() {
   );
 }
 
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${m}:${String(s).padStart(2, '0')}`;
-}
-
 /**
- * Prototype audio player — visual only. The progress bar animates while
- * "playing" so the affordance feels real, but no audio is loaded yet.
- * TODO(audio): connect to a real narration source via expo-av.
+ * Real audio player powered by text-to-speech (expo-speech). Reads the passage
+ * verse-by-verse so it works everywhere (iOS, Android, web), tracks the verse
+ * being read for live highlighting, and honors the user's voice + speed.
  */
-function AudioPlayer({ reference, translation }: { reference: string; translation: string }) {
-  // Deterministic fake duration per passage (2:30–5:00).
-  const duration = 150 + (reference.length * 17) % 150;
+function AudioPlayer({
+  verses,
+  translation,
+  onActiveVerse,
+}: {
+  verses: BibleVerse[];
+  translation: string;
+  onActiveVerse: (verse: BibleVerse | null) => void;
+}) {
+  const router = useRouter();
+  const { audio, setAudio } = usePreferences();
   const [playing, setPlaying] = useState(false);
-  const [position, setPosition] = useState(0);
+  const [index, setIndex] = useState(0);
 
-  useEffect(() => {
-    if (!playing) return;
-    const id = setInterval(() => {
-      setPosition((p) => {
-        if (p + 1 >= duration) {
-          setPlaying(false);
-          return 0;
-        }
-        return p + 1;
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, [playing, duration]);
+  const playingRef = useRef(false);
+  const indexRef = useRef(0);
+  const total = verses.length;
 
-  const pct = position / duration;
+  // Keep refs current values available to async speech callbacks.
+  const audioRef = useRef(audio);
+  audioRef.current = audio;
+
+  // Stop narration if the screen unmounts.
+  useEffect(() => () => { playingRef.current = false; Speech.stop(); }, []);
+
+  const speakIndex = (i: number) => {
+    if (i >= total) {
+      finish();
+      return;
+    }
+    indexRef.current = i;
+    setIndex(i);
+    onActiveVerse(verses[i]);
+    Speech.speak(verses[i].text, {
+      voice: audioRef.current.voiceId ?? undefined,
+      rate: audioRef.current.rate,
+      onDone: () => {
+        if (playingRef.current) speakIndex(indexRef.current + 1);
+      },
+    });
+  };
+
+  const finish = () => {
+    playingRef.current = false;
+    setPlaying(false);
+    indexRef.current = 0;
+    setIndex(0);
+    onActiveVerse(null);
+    Speech.stop();
+  };
+
+  const play = () => {
+    playingRef.current = true;
+    setPlaying(true);
+    speakIndex(indexRef.current);
+  };
+
+  const pause = () => {
+    playingRef.current = false;
+    setPlaying(false);
+    Speech.stop();
+  };
+
+  const skip = (delta: number) => {
+    const next = Math.max(0, Math.min(total - 1, indexRef.current + delta));
+    indexRef.current = next;
+    setIndex(next);
+    if (playingRef.current) {
+      Speech.stop();
+      speakIndex(next);
+    } else {
+      onActiveVerse(verses[next]);
+    }
+  };
+
+  const cycleRate = () => {
+    const i = RATE_PRESETS.indexOf(audio.rate);
+    setAudio({ rate: RATE_PRESETS[(i + 1) % RATE_PRESETS.length] });
+  };
+
+  const pct = total ? (index + (playing ? 0.5 : 0)) / total : 0;
+  const current = verses[index];
+  const verseLabel = current?.chapter ? `Verse ${current.chapter}:${current.number}` : `Verse ${current?.number ?? 1}`;
 
   return (
     <Card style={{ marginBottom: 16 }}>
       <View style={styles.audioHeader}>
         <View style={[styles.audioIcon, { backgroundColor: `${palette.pine}1A` }]}>
-          <Ionicons name="headset" size={20} color={palette.pine} />
+          <Ionicons name={playing ? 'volume-high' : 'headset'} size={20} color={palette.pine} />
         </View>
         <View style={{ flex: 1 }}>
           <AppText weight="semibold">Listen to this passage</AppText>
           <AppText variant="caption" tone="muted">
-            Narrated audio · {translation}
+            {playing ? verseLabel : `Narrated · ${translation}`}
           </AppText>
         </View>
-        <View style={styles.previewPill}>
-          <AppText variant="overline" weight="bold" style={{ color: palette.pine }}>
-            PREVIEW
+        <Pressable onPress={() => router.push('/settings/voice')} hitSlop={8} style={styles.voiceBtn}>
+          <Ionicons name="options-outline" size={14} color={palette.pine} />
+          <AppText variant="overline" weight="bold" style={{ color: palette.pine, marginLeft: 4 }}>
+            VOICE
           </AppText>
-        </View>
+        </Pressable>
       </View>
 
-      {/* scrubber */}
+      {/* progress by verse */}
       <View style={styles.audioTrack}>
-        <View style={[styles.audioFill, { width: `${pct * 100}%` }]} />
-        <View style={[styles.audioThumb, { left: `${pct * 100}%` }]} />
+        <View style={[styles.audioFill, { width: `${Math.min(100, pct * 100)}%` }]} />
       </View>
       <View style={styles.audioTimes}>
         <AppText variant="overline" tone="muted">
-          {formatTime(position)}
+          {playing || index > 0 ? `${index + 1}` : '1'} / {total}
         </AppText>
-        <AppText variant="overline" tone="muted">
-          {formatTime(duration)}
-        </AppText>
+        <Pressable onPress={cycleRate} hitSlop={8}>
+          <AppText variant="overline" weight="bold" style={{ color: palette.navy }}>
+            {audio.rate.toFixed(2).replace(/0$/, '')}×
+          </AppText>
+        </Pressable>
       </View>
 
       {/* transport controls */}
       <View style={styles.audioControls}>
-        <Pressable onPress={() => setPosition((p) => Math.max(0, p - 15))} hitSlop={8}>
-          <Ionicons name="play-back" size={22} color={palette.navy} />
+        <Pressable onPress={() => skip(-1)} hitSlop={8} accessibilityLabel="Previous verse">
+          <Ionicons name="play-skip-back" size={22} color={palette.navy} />
         </Pressable>
-        <Pressable onPress={() => setPlaying((v) => !v)} style={styles.playBtn} accessibilityRole="button" accessibilityLabel={playing ? 'Pause' : 'Play'}>
+        <Pressable onPress={playing ? pause : play} style={styles.playBtn} accessibilityRole="button" accessibilityLabel={playing ? 'Pause' : 'Play'}>
           <Ionicons name={playing ? 'pause' : 'play'} size={26} color="#FFF" style={{ marginLeft: playing ? 0 : 2 }} />
         </Pressable>
-        <Pressable onPress={() => setPosition((p) => Math.min(duration, p + 15))} hitSlop={8}>
-          <Ionicons name="play-forward" size={22} color={palette.navy} />
+        <Pressable onPress={() => skip(1)} hitSlop={8} accessibilityLabel="Next verse">
+          <Ionicons name="play-skip-forward" size={22} color={palette.navy} />
         </Pressable>
       </View>
     </Card>
   );
 }
 
-/** Renders verses grouped by chapter. Tap a verse to toggle a highlight. */
+/** Renders verses grouped by chapter. Tap a verse to highlight; active = being read. */
 function PassageBody({
   verses,
   fontScale,
@@ -203,6 +268,7 @@ function PassageBody({
   reference,
   isHighlighted,
   onToggleVerse,
+  activeKey,
 }: {
   verses: BibleVerse[];
   fontScale: number;
@@ -212,8 +278,8 @@ function PassageBody({
   reference: string;
   isHighlighted: (key: string) => boolean;
   onToggleVerse: (key: string) => void;
+  activeKey: string | null;
 }) {
-  // Group consecutive verses by chapter.
   const groups: { chapter: number | undefined; verses: BibleVerse[] }[] = [];
   for (const v of verses) {
     const last = groups[groups.length - 1];
@@ -235,7 +301,8 @@ function PassageBody({
             {group.verses.map((v) => {
               const red = redLettersOn && v.redLetter;
               const key = verseKey(reference, group.chapter, v.number);
-              const highlighted = isHighlighted(key);
+              const active = key === activeKey;
+              const bg = active ? READING_COLOR : isHighlighted(key) ? HIGHLIGHT_COLOR : 'transparent';
               return (
                 <AppText
                   key={`${group.chapter}-${v.number}`}
@@ -246,10 +313,10 @@ function PassageBody({
                     fontSize: 20 * fontScale,
                     lineHeight: 34 * fontScale,
                     color: red ? palette.clay : textColor,
-                    backgroundColor: highlighted ? HIGHLIGHT_COLOR : 'transparent',
+                    backgroundColor: bg,
                   }}
                 >
-                  <AppText style={{ fontFamily: fonts.bold, fontSize: 12 * fontScale, color: palette.brass }}>
+                  <AppText style={{ fontFamily: fonts.bold, fontSize: 12 * fontScale, color: active ? palette.pine : palette.brass }}>
                     {' '}
                     {v.number}{' '}
                   </AppText>
@@ -264,18 +331,18 @@ function PassageBody({
   );
 }
 
-// Soft amber highlighter, on-brand with the brass accent.
+// Saved highlight = amber; currently-read verse = green.
 const HIGHLIGHT_COLOR = 'rgba(201,162,75,0.34)';
+const READING_COLOR = 'rgba(62,124,107,0.26)';
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, marginBottom: 16 },
   audioHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   audioIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  previewPill: { backgroundColor: `${palette.pine}1A`, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
-  audioTrack: { height: 6, borderRadius: 6, backgroundColor: '#E5E8EC', marginTop: 16, marginBottom: 6, position: 'relative' },
-  audioFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: palette.pine, borderRadius: 6 },
-  audioThumb: { position: 'absolute', top: -4, width: 14, height: 14, borderRadius: 7, marginLeft: -7, backgroundColor: palette.pine, borderWidth: 2, borderColor: '#FFF' },
-  audioTimes: { flexDirection: 'row', justifyContent: 'space-between' },
+  voiceBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: `${palette.pine}1A`, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
+  audioTrack: { height: 6, borderRadius: 6, backgroundColor: '#E5E8EC', marginTop: 16, marginBottom: 6, overflow: 'hidden' },
+  audioFill: { height: 6, backgroundColor: palette.pine, borderRadius: 6 },
+  audioTimes: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   audioControls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 28, marginTop: 12 },
   playBtn: { width: 52, height: 52, borderRadius: 26, backgroundColor: palette.pine, alignItems: 'center', justifyContent: 'center' },
   hintRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },

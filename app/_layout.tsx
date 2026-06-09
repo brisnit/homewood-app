@@ -73,6 +73,7 @@ function RootNavigator() {
         <Stack.Screen name="settings/edit-profile" options={{ presentation: 'card' }} />
         <Stack.Screen name="settings/notifications" options={{ presentation: 'card' }} />
         <Stack.Screen name="settings/language" options={{ presentation: 'card' }} />
+        <Stack.Screen name="settings/voice" options={{ presentation: 'card' }} />
         <Stack.Screen name="settings/my-verses" options={{ presentation: 'card' }} />
       </Stack>
     </View>
