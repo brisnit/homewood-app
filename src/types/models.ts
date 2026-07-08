@@ -15,6 +15,9 @@ export interface User {
   createdAt: ISODate;
 }
 
+export type UserRole = 'resident' | 'employee' | 'community';
+export type LearningLevel = 'beginner' | 'growing' | 'mature';
+
 export interface Profile {
   id: UUID; // == User.id
   userId: UUID;
@@ -26,6 +29,10 @@ export interface Profile {
   followingCount: number;
   streakCount: number;
   createdAt: ISODate;
+  // Homewood role-based access + personalization.
+  role: UserRole;
+  campus: string;
+  learningLevel: LearningLevel;
 }
 
 export interface PrivacyAcceptance {
@@ -212,10 +219,12 @@ export interface Prayer {
   createdAt: ISODate;
 }
 
+export type SavedKind = 'devotional' | 'plan' | 'verse' | 'media' | 'resource' | 'event';
+
 export interface SavedItem {
   id: UUID;
   userId: UUID;
-  kind: 'devotional' | 'plan' | 'verse';
+  kind: SavedKind;
   refId: UUID;
   title: string;
   savedAt: ISODate;

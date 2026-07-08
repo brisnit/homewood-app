@@ -4,9 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../src/theme/ThemeProvider';
 import { fonts } from '../../src/theme/typography';
 
-/** Bottom tab bar: Home · Bible · Plans · You. */
+/** Primary bottom nav: Home · Bible · Plans · Media · Profile. */
 export default function TabsLayout() {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <Tabs
@@ -17,48 +17,36 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
-          height: 88,
+          height: 92,
           paddingTop: 8,
-          paddingBottom: 28,
+          paddingBottom: 30,
         },
-        tabBarLabelStyle: { fontFamily: fonts.medium, fontSize: 11 },
+        tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 12 },
+        tabBarItemStyle: { paddingTop: 2 },
       }}
     >
       <Tabs.Screen
         name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
-        }}
+        options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} /> }}
       />
       <Tabs.Screen
         name="bible"
-        options={{
-          title: 'Bible',
-          tabBarIcon: ({ color, size }) => <Ionicons name="book" size={size} color={color} />,
-        }}
+        options={{ title: 'Bible', tabBarIcon: ({ color, size }) => <Ionicons name="book" size={size} color={color} /> }}
       />
       <Tabs.Screen
         name="plans"
-        options={{
-          title: 'Plans',
-          tabBarIcon: ({ color, size }) => <Ionicons name="calendar" size={size} color={color} />,
-        }}
+        options={{ title: 'Plans', tabBarIcon: ({ color, size }) => <Ionicons name="calendar" size={size} color={color} /> }}
       />
       <Tabs.Screen
-        name="journal"
-        options={{
-          title: 'Journal',
-          tabBarIcon: ({ color, size }) => <Ionicons name="journal" size={size} color={color} />,
-        }}
+        name="media"
+        options={{ title: 'Media', tabBarIcon: ({ color, size }) => <Ionicons name="play-circle" size={size} color={color} /> }}
       />
       <Tabs.Screen
         name="you"
-        options={{
-          title: 'You',
-          tabBarIcon: ({ color, size }) => <Ionicons name="person-circle" size={size} color={color} />,
-        }}
+        options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <Ionicons name="person-circle" size={size} color={color} /> }}
       />
+      {/* Journal remains a route but moves out of the primary bar (reachable from Home / More). */}
+      <Tabs.Screen name="journal" options={{ href: null }} />
     </Tabs>
   );
 }

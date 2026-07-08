@@ -23,18 +23,18 @@ export type PaletteColor = keyof typeof palette;
 /** Light + dark surfaces. "Low light" mode uses the dark scheme. */
 export const colors = {
   light: {
-    // Clean white app. Contrast comes from deep navy + light-gray separators.
-    background: '#FFFFFF',
+    // Warm, pastoral, senior-friendly: cream page + white cards for gentle contrast.
+    background: '#FBF7EF',
     surface: '#FFFFFF',
-    surfaceAlt: '#F1F3F7',
-    text: '#0A1A33', // very dark navy
-    textMuted: '#5B6472',
+    surfaceAlt: '#F1EADC',
+    text: '#1A2438',
+    textMuted: '#6E675C',
     primary: palette.navy,
     accent: palette.brass,
     highlight: palette.clay,
     success: palette.pine,
     link: palette.slate,
-    border: '#E5E8EC',
+    border: '#EAE1D0',
   },
   dark: {
     background: '#0A1426',

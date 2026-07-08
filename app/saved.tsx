@@ -12,6 +12,9 @@ const KIND_META: Record<SavedItem['kind'], { icon: keyof typeof Ionicons.glyphMa
   devotional: { icon: 'book', label: 'Devotional', color: palette.clay },
   plan: { icon: 'leaf', label: 'Plan', color: palette.pine },
   verse: { icon: 'bookmark', label: 'Verse', color: palette.brass },
+  media: { icon: 'play-circle', label: 'Media', color: palette.slate },
+  resource: { icon: 'library', label: 'Resource', color: palette.navy },
+  event: { icon: 'calendar', label: 'Event', color: palette.clay },
 };
 
 /** Saved / bookmarked devotionals, plans, and verses. */

@@ -25,11 +25,14 @@ function makeProfile(user: User, displayName: string): Profile {
     displayName,
     username: DEMO_USERNAME,
     avatarUrl: null,
-    personalStatement: 'Growing in faith, one day at a time.',
+    personalStatement: 'Honoring Christ through faithful service, one day at a time.',
     friendsCount: 3,
     followingCount: 5,
     streakCount: 7,
     createdAt: user.createdAt,
+    role: 'resident',
+    campus: 'Homewood at Frederick',
+    learningLevel: 'growing',
   };
 }
 
@@ -43,6 +46,10 @@ export const mockAuth = {
       session.profile.displayName = DEMO_NAME;
       session.profile.username = DEMO_USERNAME;
     }
+    // Backfill role fields for sessions saved before role-based access existed.
+    session.profile.role = session.profile.role ?? 'resident';
+    session.profile.campus = session.profile.campus ?? 'Homewood at Frederick';
+    session.profile.learningLevel = session.profile.learningLevel ?? 'growing';
     return session;
   },
 

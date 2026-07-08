@@ -4,6 +4,7 @@ export { Card } from './Card';
 export { Chip } from './Chip';
 export { Avatar } from './Avatar';
 export { BrandMark } from './BrandMark';
+export { HomewoodImage } from './HomewoodImage';
 export { Screen } from './Screen';
 export { SectionHeader } from './SectionHeader';
 export { ProgressBar } from './ProgressBar';

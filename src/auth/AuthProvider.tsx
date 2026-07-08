@@ -61,11 +61,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       displayName: email.split('@')[0] ?? 'Friend',
       username: email.split('@')[0] ?? 'friend',
       avatarUrl: null,
-      personalStatement: 'Growing in faith, one day at a time.',
+      personalStatement: 'Honoring Christ through faithful service, one day at a time.',
       friendsCount: 0,
       followingCount: 0,
       streakCount: 0,
       createdAt: u.createdAt,
+      role: 'resident',
+      campus: 'Homewood at Frederick',
+      learningLevel: 'growing',
     });
     setPrivacyAccepted(false);
   }
