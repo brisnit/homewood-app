@@ -16,19 +16,29 @@ import { useTheme } from '../../src/theme/ThemeProvider';
 import { usePreferences } from '../../src/state/PreferencesProvider';
 import { useProgress } from '../../src/state/ProgressProvider';
 import { languageLabel } from '../../src/data/languages';
+import { ROLES } from '../../src/lib/roles';
+import { ROLE_LABEL, LEVEL_LABEL, CAMPUSES } from '../../src/data/homewoodData';
+import { LearningLevel, UserRole } from '../../src/types/models';
+
+const LEVEL_OPTIONS: LearningLevel[] = ['beginner', 'growing', 'mature'];
+type PickerKind = 'identity' | 'campus' | 'level' | null;
 
 /** Account / settings hub. `?section=` deep-links the quick actions from You. */
 export default function Settings() {
   const router = useRouter();
   const { section } = useLocalSearchParams<{ section?: string }>();
-  const { signOut } = useAuth();
-  const { isDark, toggleLowLight } = useTheme();
+  const { signOut, profile, updateProfile } = useAuth();
+  const { colors, isDark, toggleLowLight } = useTheme();
   const { language } = usePreferences();
   const { highlightCount } = useProgress();
 
   const [redLetters, setRedLetters] = useState(true);
   const [showAudio, setShowAudio] = useState(true);
   const [confirmOut, setConfirmOut] = useState(false);
+  const [picker, setPicker] = useState<PickerKind>(null);
+
+  const role = profile?.role ?? 'resident';
+  const level = profile?.learningLevel ?? 'growing';
 
   // Surface the deep-linked section (Saved / Prayer / Giving) at the top.
   const sectionTitle =
@@ -60,6 +70,15 @@ export default function Settings() {
         <SettingsRow icon="notifications-outline" label="Notification settings" onPress={() => router.push('/settings/notifications')} />
       </SettingsGroup>
 
+      {/* Personalization — identity + learning level (also set during onboarding) */}
+      <SettingsGroup title="Personalization">
+        <SettingsRow icon="ribbon-outline" label="Identity" value={ROLE_LABEL[role]} onPress={() => setPicker('identity')} />
+        <Divider />
+        <SettingsRow icon="business-outline" label="Campus" value={profile?.campus ?? 'Not set'} onPress={() => setPicker('campus')} />
+        <Divider />
+        <SettingsRow icon="school-outline" label="Learning level" value={LEVEL_LABEL[level]} onPress={() => setPicker('level')} />
+      </SettingsGroup>
+
       {/* General */}
       <SettingsGroup title="General">
         <SettingsRow icon="language-outline" label="Language" value={languageLabel(language)} onPress={() => router.push('/settings/language')} />
@@ -85,6 +104,53 @@ export default function Settings() {
       <AppText variant="overline" tone="muted" center style={{ marginTop: 20 }}>
         Homewood Living Ministries · v1.0.0
       </AppText>
+
+      {/* Identity / Campus / Learning level picker */}
+      <Modal visible={picker !== null} transparent animationType="slide" onRequestClose={() => setPicker(null)}>
+        <Pressable style={styles.sheetOverlay} onPress={() => setPicker(null)}>
+          <View style={[styles.sheet, { backgroundColor: colors.surface }]}>
+            <View style={styles.sheetHead}>
+              <AppText variant="h6" weight="bold">
+                {picker === 'identity' ? 'I am a…' : picker === 'campus' ? 'Choose your campus' : 'Learning level'}
+              </AppText>
+              <IconButton icon="close" onPress={() => setPicker(null)} accessibilityLabel="Close" />
+            </View>
+
+            {picker === 'identity'
+              ? ROLES.map((r) => (
+                  <SettingsRow
+                    key={r.key}
+                    label={r.label}
+                    value={role === r.key ? '✓' : undefined}
+                    onPress={() => { updateProfile({ role: r.key as UserRole }); setPicker(null); }}
+                  />
+                ))
+              : null}
+
+            {picker === 'campus'
+              ? CAMPUSES.map((c) => (
+                  <SettingsRow
+                    key={c}
+                    label={c}
+                    value={profile?.campus === c ? '✓' : undefined}
+                    onPress={() => { updateProfile({ campus: c }); setPicker(null); }}
+                  />
+                ))
+              : null}
+
+            {picker === 'level'
+              ? LEVEL_OPTIONS.map((l) => (
+                  <SettingsRow
+                    key={l}
+                    label={LEVEL_LABEL[l]}
+                    value={level === l ? '✓' : undefined}
+                    onPress={() => { updateProfile({ learningLevel: l }); setPicker(null); }}
+                  />
+                ))
+              : null}
+          </View>
+        </Pressable>
+      </Modal>
 
       {/* Sign-out confirmation */}
       <Modal visible={confirmOut} transparent animationType="fade" onRequestClose={() => setConfirmOut(false)}>
@@ -126,4 +192,7 @@ const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(7,16,31,0.55)', alignItems: 'center', justifyContent: 'center', padding: 32 },
   dialog: { backgroundColor: '#FFFFFF', borderRadius: 24, padding: 24, alignItems: 'center', width: '100%', maxWidth: 360 },
   dialogIcon: { width: 56, height: 56, borderRadius: 18, backgroundColor: '#C2613D1A', alignItems: 'center', justifyContent: 'center' },
+  sheetOverlay: { flex: 1, backgroundColor: 'rgba(7,16,31,0.5)', justifyContent: 'flex-end' },
+  sheet: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 18, paddingBottom: 34 },
+  sheetHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
 });

@@ -8,6 +8,7 @@ import { Profile, User } from '../types/models';
 
 const SESSION_KEY = '@homewood/mock-session';
 const PRIVACY_KEY = '@homewood/privacy-accepted';
+const ONBOARD_KEY = '@homewood/onboarding-complete';
 
 export interface MockSession {
   user: User;
@@ -81,7 +82,7 @@ export const mockAuth = {
   },
 
   async signOut(): Promise<void> {
-    await AsyncStorage.multiRemove([SESSION_KEY, PRIVACY_KEY]);
+    await AsyncStorage.multiRemove([SESSION_KEY, PRIVACY_KEY, ONBOARD_KEY]);
   },
 
   async hasAcceptedPrivacy(): Promise<boolean> {
@@ -94,5 +95,13 @@ export const mockAuth = {
 
   async clearPrivacy(): Promise<void> {
     await AsyncStorage.removeItem(PRIVACY_KEY);
+  },
+
+  async hasCompletedOnboarding(): Promise<boolean> {
+    return (await AsyncStorage.getItem(ONBOARD_KEY)) != null;
+  },
+
+  async setOnboardingComplete(): Promise<void> {
+    await AsyncStorage.setItem(ONBOARD_KEY, '1');
   },
 };

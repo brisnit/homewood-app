@@ -9,12 +9,14 @@ interface AuthContextValue {
   profile: Profile | null;
   initializing: boolean;
   privacyAccepted: boolean;
+  onboardingComplete: boolean;
   signedIn: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signOut: () => Promise<void>;
   acceptPrivacy: () => Promise<void>;
   declinePrivacy: () => Promise<void>; // signs out
+  completeOnboarding: () => Promise<void>;
   updateProfile: (patch: Partial<Profile>) => void;
 }
 
@@ -24,6 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [initializing, setInitializing] = useState(true);
 
   // Restore any existing session on boot.
@@ -41,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(session.user);
             setProfile(session.profile);
             setPrivacyAccepted(await mockAuth.hasAcceptedPrivacy());
+            setOnboardingComplete(await mockAuth.hasCompletedOnboarding());
           }
         }
       } finally {
@@ -107,6 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setProfile(null);
     setPrivacyAccepted(false);
+    setOnboardingComplete(false);
   }, []);
 
   const acceptPrivacy = useCallback(async () => {
@@ -118,6 +123,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const declinePrivacy = useCallback(async () => {
     await signOut();
   }, [signOut]);
+
+  const completeOnboarding = useCallback(async () => {
+    await mockAuth.setOnboardingComplete();
+    setOnboardingComplete(true);
+  }, []);
 
   const updateProfile = useCallback((patch: Partial<Profile>) => {
     setProfile((prev) => (prev ? { ...prev, ...patch } : prev));
@@ -132,15 +142,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       initializing,
       privacyAccepted,
+      onboardingComplete,
       signedIn: user !== null,
       signIn,
       signUp,
       signOut,
       acceptPrivacy,
       declinePrivacy,
+      completeOnboarding,
       updateProfile,
     }),
-    [user, profile, initializing, privacyAccepted, signIn, signUp, signOut, acceptPrivacy, declinePrivacy, updateProfile],
+    [user, profile, initializing, privacyAccepted, onboardingComplete, signIn, signUp, signOut, acceptPrivacy, declinePrivacy, completeOnboarding, updateProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

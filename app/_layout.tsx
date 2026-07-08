@@ -30,7 +30,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
  *   signed in + privacy       -> (tabs)
  */
 function RootNavigator() {
-  const { signedIn, privacyAccepted, initializing } = useAuth();
+  const { signedIn, privacyAccepted, onboardingComplete, initializing } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   const { colors, isDark } = useTheme();
@@ -40,6 +40,7 @@ function RootNavigator() {
     const group = segments[0];
     const inAuth = group === '(auth)';
     const onPrivacy = group === 'privacy';
+    const onOnboarding = group === 'onboarding';
     // The index route ('/') has no group segment — treat it as an entry point.
     const onEntry = group === undefined;
 
@@ -47,11 +48,14 @@ function RootNavigator() {
       if (!inAuth) router.replace('/(auth)/welcome');
     } else if (!privacyAccepted) {
       if (!onPrivacy) router.replace('/privacy');
-    } else if (inAuth || onPrivacy || onEntry) {
-      // Authenticated + accepted: leave any entry/gate route for the tabs.
+    } else if (!onboardingComplete) {
+      // New step: identify role + learning level before entering the app.
+      if (!onOnboarding) router.replace('/onboarding');
+    } else if (inAuth || onPrivacy || onOnboarding || onEntry) {
+      // Fully set up: leave any entry/gate route for the tabs.
       router.replace('/(tabs)');
     }
-  }, [signedIn, privacyAccepted, initializing, segments, router]);
+  }, [signedIn, privacyAccepted, onboardingComplete, initializing, segments, router]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -59,6 +63,7 @@ function RootNavigator() {
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="privacy" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="friends/add" options={{ presentation: 'card' }} />
         <Stack.Screen name="friends/share" options={{ presentation: 'modal' }} />
