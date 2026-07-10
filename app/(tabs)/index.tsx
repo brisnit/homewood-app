@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Screen, AppText, Card, Button, HomewoodImage } from '../../src/components/ui';
 import { useAuth } from '../../src/auth/AuthProvider';
 import { useProgress } from '../../src/state/ProgressProvider';
+import { useMessages } from '../../src/state/MessagesProvider';
 import { greeting } from '../../src/lib/format';
 import { useTheme } from '../../src/theme/ThemeProvider';
 import { palette } from '../../src/theme/colors';
@@ -29,6 +30,7 @@ export default function Home() {
   const router = useRouter();
   const { profile } = useAuth();
   const { bibleCompletedCount } = useProgress();
+  const { unreadTotal } = useMessages();
   const { colors } = useTheme();
 
   const devotional = DEVOTIONALS[0];
@@ -37,10 +39,26 @@ export default function Home() {
 
   return (
     <Screen contentStyle={{ paddingBottom: 48 }}>
-      {/* Greeting */}
-      <View style={{ marginTop: 8, marginBottom: 22 }}>
-        <AppText variant="body" tone="muted">{greeting()},</AppText>
-        <AppText variant="h2" weight="bold" numberOfLines={1}>{profile?.displayName ?? 'Friend'}</AppText>
+      {/* Greeting + messages */}
+      <View style={styles.headerRow}>
+        <View style={{ flex: 1 }}>
+          <AppText variant="body" tone="muted">{greeting()},</AppText>
+          <AppText variant="h2" weight="bold" numberOfLines={1}>{profile?.displayName ?? 'Friend'}</AppText>
+        </View>
+        <Pressable
+          onPress={() => router.push('/messages')}
+          accessibilityLabel={unreadTotal ? `Messages, ${unreadTotal} unread` : 'Messages'}
+          style={({ pressed }) => [styles.msgBtn, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && { opacity: 0.7 }]}
+        >
+          <Ionicons name="chatbubble-ellipses-outline" size={22} color={colors.primary} />
+          {unreadTotal > 0 ? (
+            <View style={styles.msgBadge}>
+              <AppText variant="overline" weight="bold" style={{ color: '#FFF', fontSize: 10 }}>
+                {unreadTotal > 9 ? '9+' : unreadTotal}
+              </AppText>
+            </View>
+          ) : null}
+        </Pressable>
       </View>
 
       {/* ── PRIMARY: the one action ─────────────────────────────── */}
@@ -120,6 +138,9 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8, marginBottom: 22 },
+  msgBtn: { width: 46, height: 46, borderRadius: 15, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  msgBadge: { position: 'absolute', top: -4, right: -4, minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 4, backgroundColor: palette.clay, borderWidth: 2, borderColor: '#FBF7EF', alignItems: 'center', justifyContent: 'center' },
   primaryInner: { flex: 1, padding: 20, justifyContent: 'flex-end' },
   eyebrow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   sectionLabel: { marginTop: 34, marginBottom: 14 },

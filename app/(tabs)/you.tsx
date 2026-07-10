@@ -6,6 +6,7 @@ import { Screen, AppText, Avatar, Card, Divider, IconButton, SettingsRow } from 
 import { useAuth } from '../../src/auth/AuthProvider';
 import { useProgress } from '../../src/state/ProgressProvider';
 import { useSaved } from '../../src/state/SavedProvider';
+import { useMessages } from '../../src/state/MessagesProvider';
 import { useTheme } from '../../src/theme/ThemeProvider';
 import { palette } from '../../src/theme/colors';
 import { ROLE_LABEL, LEVEL_LABEL } from '../../src/data/homewoodData';
@@ -23,6 +24,7 @@ export default function Profile() {
   const { profile } = useAuth();
   const { streak, bibleCompletedCount } = useProgress();
   const { count: savedCount } = useSaved();
+  const { unreadTotal } = useMessages();
   const { colors } = useTheme();
 
   const role = profile?.role ?? 'resident';
@@ -78,6 +80,8 @@ export default function Profile() {
       <View style={{ marginTop: 24 }}>
         <AppText variant="h6" weight="bold" style={{ marginBottom: 8 }}>My Library</AppText>
         <Card padded>
+          <SettingsRow icon="chatbubble-ellipses-outline" label="Messages" value={unreadTotal ? `${unreadTotal} new` : undefined} onPress={() => router.push('/messages')} />
+          <Divider />
           <SettingsRow icon="bookmark-outline" label="Saved items" value={savedCount ? String(savedCount) : undefined} onPress={() => router.push('/saved')} />
           <Divider />
           <SettingsRow icon="color-wand-outline" label="My Verses & Highlights" onPress={() => router.push('/settings/my-verses')} />

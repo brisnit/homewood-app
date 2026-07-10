@@ -26,6 +26,7 @@ const ENTRIES: Entry[] = [
   { label: 'Events', description: 'Worship, studies & fellowship', icon: 'people', href: '/events', tint: palette.pine, capability: 'events' },
   { label: 'Photos', description: 'Moments from life together', icon: 'images', href: '/photos', tint: palette.slate, capability: 'photos' },
   { label: 'Journal', description: 'Reflect and record what you learn', icon: 'create', href: '/journal', tint: palette.navy },
+  { label: 'Messages', description: 'Announcements & chats with friends', icon: 'chatbubble-ellipses', href: '/messages', tint: palette.clay },
   { label: 'Saved', description: 'Your bookmarked content', icon: 'bookmark', href: '/saved', tint: palette.brass },
 ];
 

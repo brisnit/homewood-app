@@ -230,6 +230,28 @@ export interface SavedItem {
   savedAt: ISODate;
 }
 
+// ─── Messaging ──────────────────────────────────────────────────────────────
+export type ConversationKind = 'admin' | 'user';
+
+export interface ChatMessage {
+  id: UUID;
+  conversationId: UUID;
+  senderId: string; // 'me' for the current user, otherwise the other party's id
+  senderName: string;
+  text: string;
+  createdAt: ISODate;
+}
+
+export interface Conversation {
+  id: UUID;
+  partyId: string; // other participant (or 'admin')
+  partyName: string;
+  kind: ConversationKind; // admin broadcast vs. a friend
+  subtitle?: string; // e.g. "Homewood Chaplaincy"
+  messages: ChatMessage[];
+  lastReadAt: ISODate; // messages from others after this are unread
+}
+
 // ─── Journal ────────────────────────────────────────────────────────────────
 export interface JournalEntry {
   id: UUID;

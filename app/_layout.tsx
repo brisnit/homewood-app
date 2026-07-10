@@ -21,6 +21,7 @@ import { ProgressProvider } from '../src/state/ProgressProvider';
 import { JournalProvider } from '../src/state/JournalProvider';
 import { PreferencesProvider } from '../src/state/PreferencesProvider';
 import { SavedProvider } from '../src/state/SavedProvider';
+import { MessagesProvider } from '../src/state/MessagesProvider';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -82,6 +83,9 @@ function RootNavigator() {
         <Stack.Screen name="devotional/[id]" />
         <Stack.Screen name="journal/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="saved" options={{ presentation: 'card' }} />
+        <Stack.Screen name="messages/index" options={{ presentation: 'card' }} />
+        <Stack.Screen name="messages/[id]" options={{ presentation: 'card' }} />
+        <Stack.Screen name="messages/new" options={{ presentation: 'card' }} />
         <Stack.Screen name="reader" options={{ presentation: 'card' }} />
         <Stack.Screen name="settings/index" />
         <Stack.Screen name="settings/edit-profile" options={{ presentation: 'card' }} />
@@ -120,7 +124,9 @@ export default function RootLayout() {
             <ProgressProvider>
               <JournalProvider>
                 <SavedProvider>
-                  <RootNavigator />
+                  <MessagesProvider>
+                    <RootNavigator />
+                  </MessagesProvider>
                 </SavedProvider>
               </JournalProvider>
             </ProgressProvider>
