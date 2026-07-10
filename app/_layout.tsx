@@ -15,6 +15,7 @@ import {
 import { CrimsonText_400Regular, CrimsonText_600SemiBold } from '@expo-google-fonts/crimson-text';
 
 import { ThemeProvider, useTheme } from '../src/theme/ThemeProvider';
+import { BottomNav } from '../src/components/ui';
 import { AuthProvider, useAuth } from '../src/auth/AuthProvider';
 import { ProgressProvider } from '../src/state/ProgressProvider';
 import { JournalProvider } from '../src/state/JournalProvider';
@@ -34,6 +35,13 @@ function RootNavigator() {
   const segments = useSegments();
   const router = useRouter();
   const { colors, isDark } = useTheme();
+
+  // Persistent bottom nav on every authed screen except the tab screens (which
+  // have their own bar) and the auth/gate screens.
+  const group = segments[0];
+  const authedApp = signedIn && privacyAccepted && onboardingComplete;
+  const showBottomNav =
+    authedApp && !!group && !['(auth)', 'privacy', 'onboarding', '(tabs)'].includes(group);
 
   useEffect(() => {
     if (initializing) return;
@@ -60,6 +68,7 @@ function RootNavigator() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
+      <View style={{ flex: 1 }}>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="privacy" options={{ gestureEnabled: false }} />
@@ -81,6 +90,8 @@ function RootNavigator() {
         <Stack.Screen name="settings/voice" options={{ presentation: 'card' }} />
         <Stack.Screen name="settings/my-verses" options={{ presentation: 'card' }} />
       </Stack>
+      </View>
+      {showBottomNav ? <BottomNav /> : null}
     </View>
   );
 }

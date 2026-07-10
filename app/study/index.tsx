@@ -6,7 +6,6 @@ import {
   Screen,
   AppText,
   Card,
-  Chip,
   SectionHeader,
   HomewoodImage,
 } from '../../src/components/ui';
@@ -120,22 +119,24 @@ export default function StudyHub() {
       </View>
       <View style={styles.grid}>
         {STUDY_TOOLS.map((tool) => (
-          <Card
-            key={tool.label}
-            style={styles.toolCard}
-            onPress={() =>
-              tool.kind === 'passage'
-                ? openFeatured()
-                : Alert.alert('Study Bible', 'Guide coming soon.')
-            }
-          >
-            <View style={[styles.toolIcon, { backgroundColor: colors.surfaceAlt }]}>
-              <Ionicons name={tool.icon} size={22} color={colors.primary} />
-            </View>
-            <AppText weight="semibold" style={{ marginTop: 10 }}>
-              {tool.label}
-            </AppText>
-          </Card>
+          // Sizing wrapper: a pressable Card puts `style` on its inner view, so
+          // the 48% width must live on an outer View to actually constrain it.
+          <View key={tool.label} style={styles.toolCard}>
+            <Card
+              onPress={() =>
+                tool.kind === 'passage'
+                  ? openFeatured()
+                  : Alert.alert('Study Bible', 'Guide coming soon.')
+              }
+            >
+              <View style={[styles.toolIcon, { backgroundColor: colors.surfaceAlt }]}>
+                <Ionicons name={tool.icon} size={22} color={colors.primary} />
+              </View>
+              <AppText weight="semibold" style={styles.toolLabel} numberOfLines={2}>
+                {tool.label}
+              </AppText>
+            </Card>
+          </View>
         ))}
       </View>
 
@@ -183,9 +184,10 @@ const styles = StyleSheet.create({
   oiaIcon: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   featuredRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   featuredIcon: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  toolCard: { width: '47.5%', alignItems: 'flex-start' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  toolCard: { width: '48%', marginBottom: 12 },
   toolIcon: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  toolLabel: { marginTop: 10 },
   commentaryRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
   pill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
 });

@@ -5,6 +5,7 @@ export { Chip } from './Chip';
 export { Avatar } from './Avatar';
 export { BrandMark } from './BrandMark';
 export { HomewoodImage } from './HomewoodImage';
+export { BottomNav } from './BottomNav';
 export { Screen } from './Screen';
 export { SectionHeader } from './SectionHeader';
 export { ProgressBar } from './ProgressBar';
