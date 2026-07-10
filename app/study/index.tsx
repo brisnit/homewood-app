@@ -123,6 +123,7 @@ export default function StudyHub() {
           // the 48% width must live on an outer View to actually constrain it.
           <View key={tool.label} style={styles.toolCard}>
             <Card
+              style={styles.toolCardBody}
               onPress={() =>
                 tool.kind === 'passage'
                   ? openFeatured()
@@ -186,6 +187,9 @@ const styles = StyleSheet.create({
   featuredIcon: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   toolCard: { width: '48%', marginBottom: 12 },
+  // Uniform height so single-line (Commentary/Footnotes) and two-line
+  // (Cross References/Hermeneutics Guide) cards match.
+  toolCardBody: { minHeight: 132 },
   toolIcon: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   toolLabel: { marginTop: 10 },
   commentaryRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14 },
