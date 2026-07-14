@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, TextInput, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen, AppText, Button, HomewoodImage } from '../src/components/ui';
 import { useAuth } from '../src/auth/AuthProvider';
 import { useTheme } from '../src/theme/ThemeProvider';
 import { palette } from '../src/theme/colors';
+import { fonts } from '../src/theme/typography';
+import { NO_OUTLINE } from '../src/lib/style';
 import { ROLES } from '../src/lib/roles';
-import { UserRole, LearningLevel } from '../src/types/models';
+import { UserRole, LearningLevel, ChurchStatus } from '../src/types/models';
 
 const LEVELS: { key: LearningLevel; label: string; blurb: string }[] = [
   { key: 'beginner', label: 'Beginner', blurb: 'New to the Bible and exploring faith.' },
   { key: 'growing', label: 'Growing', blurb: 'Building a steady rhythm in the Word.' },
   { key: 'mature', label: 'Mature', blurb: 'Deep in study and helping others grow.' },
+];
+
+export const CHURCH_OPTIONS: { key: ChurchStatus; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+  { key: 'yes', label: 'Yes', icon: 'home' },
+  { key: 'not-currently', label: 'Not currently', icon: 'time-outline' },
+  { key: 'exploring', label: 'I’m exploring', icon: 'compass-outline' },
+  { key: 'prefer-not', label: 'Prefer not to say', icon: 'ellipsis-horizontal' },
 ];
 
 /**
@@ -24,12 +33,19 @@ export default function Onboarding() {
   const { profile, updateProfile, completeOnboarding } = useAuth();
   const { colors } = useTheme();
 
-  const [step, setStep] = useState<0 | 1>(0);
+  const [step, setStep] = useState<0 | 1 | 2>(0);
   const [role, setRole] = useState<UserRole>(profile?.role ?? 'resident');
   const [level, setLevel] = useState<LearningLevel>(profile?.learningLevel ?? 'growing');
+  const [churchStatus, setChurchStatus] = useState<ChurchStatus | null>(profile?.churchStatus ?? null);
+  const [churchName, setChurchName] = useState(profile?.churchName ?? '');
 
   const finish = async () => {
-    updateProfile({ role, learningLevel: level });
+    updateProfile({
+      role,
+      learningLevel: level,
+      churchStatus,
+      churchName: churchStatus === 'yes' ? churchName.trim() || null : null,
+    });
     await completeOnboarding(); // guard redirects to the app
   };
 
@@ -50,7 +66,7 @@ export default function Onboarding() {
 
       {/* Step indicator */}
       <View style={styles.dots}>
-        {[0, 1].map((i) => (
+        {[0, 1, 2].map((i) => (
           <View key={i} style={[styles.dot, { backgroundColor: i === step ? palette.navy : colors.border, width: i === step ? 26 : 8 }]} />
         ))}
       </View>
@@ -73,7 +89,7 @@ export default function Onboarding() {
           ))}
           <Button label="Continue" iconRight="arrow-forward" onPress={() => setStep(1)} style={{ marginTop: 12 }} />
         </>
-      ) : (
+      ) : step === 1 ? (
         <>
           <AppText variant="h4" weight="bold" style={{ marginTop: 4 }}>Where are you in your walk?</AppText>
           <AppText tone="muted" style={{ marginTop: 6, marginBottom: 20 }}>
@@ -89,8 +105,40 @@ export default function Onboarding() {
               onPress={() => setLevel(l.key)}
             />
           ))}
-          <Button label="Enter Homewood Living" iconRight="arrow-forward" onPress={finish} style={{ marginTop: 12 }} />
+          <Button label="Continue" iconRight="arrow-forward" onPress={() => setStep(2)} style={{ marginTop: 12 }} />
           <Button label="Back" variant="tertiary" onPress={() => setStep(0)} style={{ marginTop: 2 }} />
+        </>
+      ) : (
+        <>
+          <AppText variant="h4" weight="bold" style={{ marginTop: 4 }}>Are you connected to a local church?</AppText>
+          <AppText tone="muted" style={{ marginTop: 6, marginBottom: 20 }}>
+            This helps us better understand and support the Homewood community. It’s optional and private.
+          </AppText>
+          {CHURCH_OPTIONS.map((c) => (
+            <SelectCard
+              key={c.key}
+              icon={c.icon}
+              title={c.label}
+              selected={churchStatus === c.key}
+              onPress={() => setChurchStatus(c.key)}
+            />
+          ))}
+          {churchStatus === 'yes' ? (
+            <View style={{ marginBottom: 4 }}>
+              <AppText weight="semibold" style={{ marginBottom: 6 }}>
+                What church community are you part of?
+              </AppText>
+              <TextInput
+                value={churchName}
+                onChangeText={setChurchName}
+                placeholder="Church name (optional)"
+                placeholderTextColor={colors.textMuted}
+                style={[styles.input, { color: colors.text, borderColor: colors.border, fontFamily: fonts.regular }, NO_OUTLINE]}
+              />
+            </View>
+          ) : null}
+          <Button label="Enter Homewood Living" iconRight="arrow-forward" onPress={finish} style={{ marginTop: 12 }} />
+          <Button label="Back" variant="tertiary" onPress={() => setStep(1)} style={{ marginTop: 2 }} />
         </>
       )}
     </Screen>
@@ -106,7 +154,7 @@ function SelectCard({
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   title: string;
-  blurb: string;
+  blurb?: string;
   selected: boolean;
   onPress: () => void;
 }) {
@@ -139,4 +187,5 @@ const styles = StyleSheet.create({
   dot: { height: 8, borderRadius: 4 },
   card: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 18, marginBottom: 12 },
   cardIcon: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  input: { borderWidth: 1.5, borderRadius: 14, paddingHorizontal: 14, height: 52, fontSize: 16 },
 });

@@ -30,6 +30,8 @@ export interface MediaItem {
 }
 
 // ─── Events ─────────────────────────────────────────────────────────────────
+export type RegistrationMethod = 'rsvp' | 'external' | 'none';
+
 export interface MinistryEvent {
   id: UUID;
   title: string;
@@ -41,6 +43,11 @@ export interface MinistryEvent {
   description: string;
   category: string;
   roles?: UserRole[];
+  // Registration (admin-configurable). Defaults to 'rsvp' when omitted.
+  registrationMethod?: RegistrationMethod;
+  capacity?: number;
+  externalRegistrationUrl?: string;
+  externalRegistrationLabel?: string; // e.g. "Register on Eventbrite"
 }
 
 // ─── Photos ─────────────────────────────────────────────────────────────────

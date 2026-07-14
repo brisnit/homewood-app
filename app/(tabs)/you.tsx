@@ -57,6 +57,13 @@ export default function Profile() {
         </Pressable>
       </View>
 
+      {/* Social actions — easy to find */}
+      <View style={styles.socialRow}>
+        <SocialAction icon="share-social-outline" label="Share" onPress={() => router.push('/friends/share')} />
+        <SocialAction icon="person-add-outline" label="Find Friends" onPress={() => router.push('/friends/add')} />
+        <SocialAction icon="chatbubbles-outline" label="Messages" badge={unreadTotal} onPress={() => router.push('/messages')} />
+      </View>
+
       {/* About you (informational labels) */}
       <Card style={{ marginTop: 20 }} padded>
         <InfoRow icon="ribbon-outline" label="Identity" value={ROLE_LABEL[role]} />
@@ -97,6 +104,23 @@ export default function Profile() {
   );
 }
 
+function SocialAction({ icon, label, badge, onPress }: { icon: keyof typeof Ionicons.glyphMap; label: string; badge?: number; onPress: () => void }) {
+  const { colors } = useTheme();
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} style={({ pressed }) => [styles.social, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && { opacity: 0.7 }]}>
+      <View>
+        <Ionicons name={icon} size={22} color={colors.primary} />
+        {badge ? (
+          <View style={styles.socialBadge}>
+            <AppText variant="overline" weight="bold" style={{ color: '#FFF', fontSize: 10 }}>{badge > 9 ? '9+' : badge}</AppText>
+          </View>
+        ) : null}
+      </View>
+      <AppText variant="caption" weight="semibold" style={{ marginTop: 6 }}>{label}</AppText>
+    </Pressable>
+  );
+}
+
 function InfoRow({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap; label: string; value: string }) {
   const { colors } = useTheme();
   return (
@@ -125,6 +149,9 @@ const styles = StyleSheet.create({
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4, marginBottom: 8 },
   identity: { alignItems: 'center', marginTop: 8 },
   roleLabel: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, marginTop: 10 },
+  socialRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
+  social: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 16, borderWidth: 1 },
+  socialBadge: { position: 'absolute', top: -6, right: -10, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, backgroundColor: palette.clay, alignItems: 'center', justifyContent: 'center' },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   infoIcon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   statsRow: { flexDirection: 'row', gap: 10, marginTop: 20 },

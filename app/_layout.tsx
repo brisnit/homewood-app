@@ -22,6 +22,7 @@ import { JournalProvider } from '../src/state/JournalProvider';
 import { PreferencesProvider } from '../src/state/PreferencesProvider';
 import { SavedProvider } from '../src/state/SavedProvider';
 import { MessagesProvider } from '../src/state/MessagesProvider';
+import { RsvpProvider } from '../src/state/RsvpProvider';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -125,7 +126,9 @@ export default function RootLayout() {
               <JournalProvider>
                 <SavedProvider>
                   <MessagesProvider>
-                    <RootNavigator />
+                    <RsvpProvider>
+                      <RootNavigator />
+                    </RsvpProvider>
                   </MessagesProvider>
                 </SavedProvider>
               </JournalProvider>

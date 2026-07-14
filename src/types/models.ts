@@ -33,7 +33,13 @@ export interface Profile {
   role: UserRole;
   campus: string;
   learningLevel: LearningLevel;
+  // Optional church connection (onboarding). Private by default — never shown
+  // publicly or used to restrict access.
+  churchStatus?: ChurchStatus | null;
+  churchName?: string | null;
 }
+
+export type ChurchStatus = 'yes' | 'not-currently' | 'exploring' | 'prefer-not';
 
 export interface PrivacyAcceptance {
   id: UUID;

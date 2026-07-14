@@ -3,15 +3,23 @@ import { View, StyleSheet, TextInput, Pressable, Alert, KeyboardAvoidingView, Pl
 import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { Screen, AppText, Avatar, Field, Button, IconButton, Divider } from '../../src/components/ui';
+import { Screen, AppText, Avatar, Field, Button, IconButton, Divider, Chip } from '../../src/components/ui';
 import { useAuth } from '../../src/auth/AuthProvider';
 import { useTheme } from '../../src/theme/ThemeProvider';
 import { DEFAULT_AVATAR } from '../../src/lib/assets';
 import { fonts } from '../../src/theme/typography';
 import { palette } from '../../src/theme/colors';
 import { NO_OUTLINE } from '../../src/lib/style';
+import { ChurchStatus } from '../../src/types/models';
 
 const STATEMENT_MAX = 150;
+
+const CHURCH_CHOICES: { key: ChurchStatus; label: string }[] = [
+  { key: 'yes', label: 'Yes' },
+  { key: 'not-currently', label: 'Not currently' },
+  { key: 'exploring', label: 'I’m exploring' },
+  { key: 'prefer-not', label: 'Prefer not to say' },
+];
 
 /** Edit profile: photo, display name, username, and personal statement. */
 export default function EditProfile() {
@@ -22,6 +30,8 @@ export default function EditProfile() {
   const [name, setName] = useState(profile?.displayName ?? '');
   const [username, setUsername] = useState(profile?.username ?? '');
   const [statement, setStatement] = useState(profile?.personalStatement ?? '');
+  const [churchStatus, setChurchStatus] = useState<ChurchStatus | null>(profile?.churchStatus ?? null);
+  const [churchName, setChurchName] = useState(profile?.churchName ?? '');
   const [photo, setPhoto] = useState<string | null>(null); // newly picked photo uri
   const [error, setError] = useState<string | null>(null);
 
@@ -55,6 +65,8 @@ export default function EditProfile() {
       displayName: cleanName,
       username: cleanUser,
       personalStatement: statement.trim() || null,
+      churchStatus,
+      churchName: churchStatus === 'yes' ? churchName.trim() || null : null,
       ...(photo ? { avatarUrl: photo } : {}),
     });
     router.back();
@@ -125,6 +137,39 @@ export default function EditProfile() {
           </AppText>
         </View>
 
+        {/* Church connection (optional, private) */}
+        <Divider spacing={12} />
+        <View>
+          <AppText variant="caption" weight="semibold" style={{ marginBottom: 2 }}>
+            Are you connected to a local church?
+          </AppText>
+          <AppText variant="overline" tone="muted" style={{ marginBottom: 10 }}>
+            Optional and private — never shown to other members.
+          </AppText>
+          <View style={styles.churchChips}>
+            {CHURCH_CHOICES.map((c) => (
+              <Chip
+                key={c.key}
+                label={c.label}
+                accent="navy"
+                selected={churchStatus === c.key}
+                onPress={() => setChurchStatus(churchStatus === c.key ? null : c.key)}
+              />
+            ))}
+          </View>
+          {churchStatus === 'yes' ? (
+            <View style={{ marginTop: 12 }}>
+              <Field
+                label="Church community"
+                icon="business-outline"
+                placeholder="Church name (optional)"
+                value={churchName}
+                onChangeText={setChurchName}
+              />
+            </View>
+          ) : null}
+        </View>
+
         <View style={{ marginTop: 16 }}>
           <Button label="Save changes" icon="checkmark" onPress={onSave} />
         </View>
@@ -150,4 +195,5 @@ const styles = StyleSheet.create({
   },
   statementBox: { borderWidth: 1.5, borderRadius: 14, padding: 12, minHeight: 96 },
   statementInput: { fontSize: 16, minHeight: 72 },
+  churchChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 });

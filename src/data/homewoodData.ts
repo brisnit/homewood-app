@@ -49,11 +49,11 @@ export const MEDIA_ITEMS: MediaItem[] = [
 
 // ─── Events ─────────────────────────────────────────────────────────────────
 export const MINISTRY_EVENTS: MinistryEvent[] = [
-  { id: 'ev-1', title: 'Wednesday Evening Bible Study', date: '2026-06-11T18:00:00', location: 'Chapel Fellowship Hall', campus: 'Homewood at Frederick', image: 'community', description: 'A warm, guided study through Philippians with coffee and fellowship afterward. All are welcome.', category: 'Bible Study' },
+  { id: 'ev-1', title: 'Wednesday Evening Bible Study', date: '2026-06-11T18:00:00', location: 'Chapel Fellowship Hall', campus: 'Homewood at Frederick', image: 'community', description: 'A warm, guided study through Philippians with coffee and fellowship afterward. All are welcome.', category: 'Bible Study', registrationMethod: 'rsvp', capacity: 60 },
   { id: 'ev-2', title: 'Sunday Chapel Worship', date: '2026-06-14T10:30:00', location: 'Homewood Chapel', campus: 'Homewood at Frederick', image: 'chapel', description: 'Gather for hymns, Scripture, and a message of hope. Communion served the first Sunday of each month.', category: 'Worship' },
   { id: 'ev-3', title: 'Prayer & Praise Breakfast', date: '2026-06-18T08:30:00', location: 'Garden Room', campus: 'Homewood at Plum Creek', image: 'prayer', description: 'Start your morning with prayer, testimony, and a shared breakfast among friends.', category: 'Fellowship' },
   { id: 'ev-4', title: 'Caregiver Support & Devotion', date: '2026-06-20T15:00:00', location: 'Wellness Center', campus: 'Homewood at Williamsport', image: 'support', description: 'Encouragement and Scripture for those caring for loved ones. Facilitated by Homewood chaplaincy.', category: 'Support', roles: ['employee', 'community'] },
-  { id: 'ev-5', title: 'Summer Hymn Sing', date: '2026-06-27T18:30:00', location: 'Courtyard Lawn', campus: 'Homewood at Martinsburg', image: 'worship', description: 'An outdoor evening of favorite hymns and fellowship. Bring a friend and a lawn chair.', category: 'Worship' },
+  { id: 'ev-5', title: 'Summer Hymn Sing', date: '2026-06-27T18:30:00', location: 'Courtyard Lawn', campus: 'Homewood at Martinsburg', image: 'worship', description: 'An outdoor evening of favorite hymns and fellowship. Bring a friend and a lawn chair.', category: 'Worship', registrationMethod: 'external', externalRegistrationUrl: 'https://www.eventbrite.com/e/summer-hymn-sing-tickets', externalRegistrationLabel: 'Register on Eventbrite' },
 ];
 
 // ─── Photos ─────────────────────────────────────────────────────────────────
