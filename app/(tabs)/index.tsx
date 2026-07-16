@@ -127,9 +127,9 @@ export default function Home() {
             style={({ pressed }) => [styles.exploreTile, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && { opacity: 0.7 }]}
           >
             <View style={[styles.exploreIcon, { backgroundColor: `${e.tint}18` }]}>
-              <Ionicons name={e.icon} size={22} color={e.tint} />
+              <Ionicons name={e.icon} size={28} color={e.tint} />
             </View>
-            <AppText variant="caption" weight="semibold" center numberOfLines={1} style={{ marginTop: 6 }}>{e.label}</AppText>
+            <AppText variant="body" weight="semibold" center numberOfLines={1} style={{ marginTop: 10 }}>{e.label}</AppText>
           </Pressable>
         ))}
       </View>
@@ -148,7 +148,8 @@ const styles = StyleSheet.create({
   rowCardInner: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 12 },
   rowThumb: { width: 66, height: 66 },
   exploreHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 34, marginBottom: 14 },
-  exploreRow: { flexDirection: 'row', gap: 10 },
-  exploreTile: { flex: 1, alignItems: 'center', paddingVertical: 16, borderRadius: 18, borderWidth: 1 },
-  exploreIcon: { width: 46, height: 46, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  // 2×2 grid — larger, easier targets than a single row of four.
+  exploreRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  exploreTile: { width: '48%', alignItems: 'center', paddingVertical: 26, borderRadius: 20, borderWidth: 1, marginBottom: 12 },
+  exploreIcon: { width: 58, height: 58, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 });
