@@ -4,19 +4,24 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card, AppText, Button, HomewoodImage } from '../ui';
 import { palette } from '../../theme/colors';
 import { useTheme } from '../../theme/ThemeProvider';
-import { Course } from '../../data/courses';
+import { Episode, PODCAST_NAME } from '../../data/episodes';
 
-/** External course card (e.g. Robert J. Morgan). Clearly labeled as off-app. */
-export function CourseCard({ course }: { course: Course }) {
+/**
+ * Podcast episode card (The Robert J. Morgan Podcast). Clearly labeled as
+ * externally hosted — the app links out to the player, it doesn't host it.
+ */
+export function EpisodeCard({ episode }: { episode: Episode }) {
   const { colors } = useTheme();
   return (
     <Card style={styles.card} padded={false}>
-      <HomewoodImage name={course.image} height={120} overlay={0.28} accessibilityLabel={course.title}>
+      <HomewoodImage name={episode.image} height={120} overlay={0.28} accessibilityLabel={episode.title}>
         <View style={styles.badge}>
-          <Ionicons name="open-outline" size={12} color="#FFF" />
-          <AppText variant="overline" weight="bold" style={{ color: '#FFF', marginLeft: 4 }}>EXTERNAL COURSE</AppText>
+          <Ionicons name="headset-outline" size={12} color="#FFF" />
+          <AppText variant="overline" weight="bold" style={{ color: '#FFF', marginLeft: 4 }}>
+            PODCAST · EPISODE {episode.episode}
+          </AppText>
         </View>
-        {course.featured ? (
+        {episode.featured ? (
           <View style={[styles.badge, styles.featured]}>
             <Ionicons name="star" size={11} color={palette.navy} />
             <AppText variant="overline" weight="bold" style={{ color: palette.navy, marginLeft: 4 }}>FEATURED</AppText>
@@ -24,21 +29,27 @@ export function CourseCard({ course }: { course: Course }) {
         ) : null}
       </HomewoodImage>
       <View style={{ padding: 16 }}>
-        <AppText variant="h6" weight="bold" numberOfLines={2}>{course.title}</AppText>
+        <AppText variant="h6" weight="bold" numberOfLines={2}>{episode.title}</AppText>
         <View style={styles.providerRow}>
           <Ionicons name="person-circle-outline" size={15} color={colors.textMuted} />
-          <AppText variant="caption" tone="muted" style={{ marginLeft: 4 }}>
-            {course.provider} · {course.category}
+          <AppText variant="caption" tone="muted" style={{ marginLeft: 4 }} numberOfLines={1}>
+            {episode.provider} · {episode.scripture}
           </AppText>
         </View>
         <AppText variant="caption" tone="muted" style={{ marginTop: 6 }} numberOfLines={2}>
-          {course.description}
+          {episode.description}
         </AppText>
         <AppText variant="overline" tone="muted" style={{ marginTop: 8 }}>
-          Hosted by {course.provider} — opens outside Homewood Living
+          {PODCAST_NAME} — opens outside Homewood Living
         </AppText>
         <View style={{ marginTop: 12 }}>
-          <Button label="View Course" iconRight="open-outline" size="sm" onPress={() => Linking.openURL(course.url)} />
+          <Button
+            label="Listen"
+            icon="play"
+            iconRight="open-outline"
+            size="sm"
+            onPress={() => Linking.openURL(episode.url)}
+          />
         </View>
       </View>
     </Card>

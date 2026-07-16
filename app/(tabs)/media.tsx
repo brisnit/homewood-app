@@ -3,14 +3,14 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen, AppText, Chip, SectionHeader, Divider } from '../../src/components/ui';
 import { MediaCard } from '../../src/components/content/MediaCard';
-import { CourseCard } from '../../src/components/content/CourseCard';
+import { EpisodeCard } from '../../src/components/content/EpisodeCard';
 import { MEDIA_ITEMS } from '../../src/data/homewoodData';
-import { COURSES } from '../../src/data/courses';
+import { RJM_EPISODES } from '../../src/data/episodes';
 import { MediaCategory } from '../../src/types/homewood';
 import { useAuth } from '../../src/auth/AuthProvider';
 import { visibleTo } from '../../src/lib/roles';
 
-type Filter = 'all' | MediaCategory | 'courses';
+type Filter = 'all' | MediaCategory | 'podcast';
 
 const FILTERS: { key: Filter; label: string }[] = [
   { key: 'all', label: 'All' },
@@ -18,7 +18,7 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: 'sermon', label: 'Sermons' },
   { key: 'live', label: 'Live' },
   { key: 'entertainment', label: 'Worship' },
-  { key: 'courses', label: 'Courses' },
+  { key: 'podcast', label: 'Podcast' },
 ];
 
 /** Media library — teachings, sermons, live studies, and worship. */
@@ -28,7 +28,7 @@ export default function Media() {
   const [filter, setFilter] = useState<Filter>('all');
 
   const items = useMemo(() => {
-    if (filter === 'courses') return [];
+    if (filter === 'podcast') return [];
     const forRole = profile ? visibleTo(MEDIA_ITEMS, profile.role) : MEDIA_ITEMS;
     return filter === 'all' ? forRole : forRole.filter((m) => m.category === filter);
   }, [filter, profile]);
@@ -50,12 +50,12 @@ export default function Media() {
         ))}
       </ScrollView>
 
-      {/* Courses-only view */}
-      {filter === 'courses' ? (
+      {/* Podcast-only view */}
+      {filter === 'podcast' ? (
         <>
-          <SectionHeader title="Courses" />
-          {COURSES.map((course) => (
-            <CourseCard key={course.id} course={course} />
+          <SectionHeader title="The Robert J. Morgan Podcast" />
+          {RJM_EPISODES.map((ep) => (
+            <EpisodeCard key={ep.id} episode={ep} />
           ))}
         </>
       ) : null}
@@ -73,7 +73,7 @@ export default function Media() {
         </View>
       ) : null}
 
-      {filter !== 'courses' ? (
+      {filter !== 'podcast' ? (
         <>
           <SectionHeader title={filter === 'all' ? 'Recent' : FILTERS.find((f) => f.key === filter)!.label} />
           {(live && filter === 'all' ? items : rest).map((m, i) => (
@@ -85,12 +85,12 @@ export default function Media() {
         </>
       ) : null}
 
-      {/* Courses on the All tab too (external, e.g. Robert J. Morgan) */}
+      {/* Podcast episodes on the All tab too (external) */}
       {filter === 'all' ? (
         <View style={{ marginTop: 24 }}>
-          <SectionHeader title="Courses" />
-          {COURSES.map((course) => (
-            <CourseCard key={course.id} course={course} />
+          <SectionHeader title="The Robert J. Morgan Podcast" />
+          {RJM_EPISODES.map((ep) => (
+            <EpisodeCard key={ep.id} episode={ep} />
           ))}
         </View>
       ) : null}
