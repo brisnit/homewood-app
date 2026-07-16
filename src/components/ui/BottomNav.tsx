@@ -13,19 +13,21 @@ interface NavItem {
   href: Href;
 }
 
+// Keep in sync with app/(tabs)/_layout.tsx — this bar mirrors it.
 const ITEMS: NavItem[] = [
   { label: 'Home', icon: 'home', href: '/(tabs)' },
   { label: 'Bible', icon: 'book', href: '/(tabs)/bible' },
   { label: 'Plans', icon: 'calendar', href: '/(tabs)/plans' },
   { label: 'Media', icon: 'play-circle', href: '/(tabs)/media' },
+  { label: 'Events', icon: 'people', href: '/(tabs)/events' },
   { label: 'Profile', icon: 'person-circle', href: '/(tabs)/you' },
 ];
 
 /**
  * Persistent bottom navigation shown on secondary/detail screens that live
  * outside the tab group, so the primary destinations (and a way Home) are
- * always one tap away. The real Tabs bar shows on the five tab screens; this
- * mirrors it everywhere else.
+ * always one tap away. The real Tabs bar shows on the tab screens themselves;
+ * this mirrors it everywhere else.
  */
 export function BottomNav() {
   const router = useRouter();
