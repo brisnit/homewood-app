@@ -4,7 +4,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../src/theme/ThemeProvider';
 import { fonts } from '../../src/theme/typography';
 
-/** Primary bottom nav: Home · Bible · Plans · Media · Events · Profile. */
+/**
+ * Primary bottom nav: Home · Bible · Plans · Media · Profile.
+ *
+ * Deliberately five. A sixth (Events) made every target too small on a phone —
+ * Events lives on Home's Explore grid, Profile, and More instead.
+ */
 export default function TabsLayout() {
   const { colors } = useTheme();
 
@@ -40,10 +45,6 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="media"
         options={{ title: 'Media', tabBarIcon: ({ color, size }) => <Ionicons name="play-circle" size={size} color={color} /> }}
-      />
-      <Tabs.Screen
-        name="events"
-        options={{ title: 'Events', tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} /> }}
       />
       <Tabs.Screen
         name="you"

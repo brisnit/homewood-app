@@ -19,7 +19,6 @@ const ITEMS: NavItem[] = [
   { label: 'Bible', icon: 'book', href: '/(tabs)/bible' },
   { label: 'Plans', icon: 'calendar', href: '/(tabs)/plans' },
   { label: 'Media', icon: 'play-circle', href: '/(tabs)/media' },
-  { label: 'Events', icon: 'people', href: '/(tabs)/events' },
   { label: 'Profile', icon: 'person-circle', href: '/(tabs)/you' },
 ];
 

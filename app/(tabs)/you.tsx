@@ -64,6 +64,21 @@ export default function Profile() {
         <SocialAction icon="chatbubbles-outline" label="Messages" badge={unreadTotal} onPress={() => router.push('/messages')} />
       </View>
 
+      {/* Events sits full-width rather than as a fourth card — a four-across row
+          shrinks every target below a comfortable tap size. */}
+      <Card onPress={() => router.push('/events')} style={styles.eventsCard}>
+        <View style={[styles.eventsIcon, { backgroundColor: `${palette.pine}18` }]}>
+          <Ionicons name="calendar" size={22} color={palette.pine} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <AppText weight="bold">Events &amp; Calendar</AppText>
+          <AppText variant="caption" tone="muted" style={{ marginTop: 2 }}>
+            Worship, studies &amp; fellowship
+          </AppText>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+      </Card>
+
       {/* About you (informational labels) */}
       <Card style={{ marginTop: 20 }} padded>
         <InfoRow icon="ribbon-outline" label="Identity" value={ROLE_LABEL[role]} />
@@ -150,6 +165,8 @@ const styles = StyleSheet.create({
   identity: { alignItems: 'center', marginTop: 8 },
   roleLabel: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, marginTop: 10 },
   socialRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
+  eventsCard: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 10 },
+  eventsIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   social: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 16, borderWidth: 1 },
   socialBadge: { position: 'absolute', top: -6, right: -10, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, backgroundColor: palette.clay, alignItems: 'center', justifyContent: 'center' },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
