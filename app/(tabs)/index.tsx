@@ -2,10 +2,9 @@ import React from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { useRouter, Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen, AppText, Card, Button, HomewoodImage } from '../../src/components/ui';
+import { Screen, AppHeader, AppText, Card, Button, HomewoodImage } from '../../src/components/ui';
 import { useAuth } from '../../src/auth/AuthProvider';
 import { useProgress } from '../../src/state/ProgressProvider';
-import { useMessages } from '../../src/state/MessagesProvider';
 import { greeting } from '../../src/lib/format';
 import { useTheme } from '../../src/theme/ThemeProvider';
 import { palette } from '../../src/theme/colors';
@@ -16,6 +15,7 @@ const TOTAL_BIBLE_DAYS = 365;
 // A small, calm set of secondary entry points (not the 8-tile grid).
 const EXPLORE: { label: string; icon: keyof typeof Ionicons.glyphMap; href: Href; tint: string }[] = [
   { label: 'Study Bible', icon: 'library', href: '/study', tint: palette.slate },
+  { label: 'Journal', icon: 'create', href: '/journal', tint: palette.navy },
   { label: 'Media', icon: 'play-circle', href: '/(tabs)/media', tint: palette.clay },
   { label: 'Events', icon: 'people', href: '/events', tint: palette.pine },
   { label: 'Resources', icon: 'school', href: '/resources', tint: palette.brass },
@@ -30,7 +30,6 @@ export default function Home() {
   const router = useRouter();
   const { profile } = useAuth();
   const { bibleCompletedCount } = useProgress();
-  const { unreadTotal } = useMessages();
   const { colors } = useTheme();
 
   const devotional = DEVOTIONALS[0];
@@ -39,27 +38,11 @@ export default function Home() {
 
   return (
     <Screen contentStyle={{ paddingBottom: 48 }}>
-      {/* Greeting + messages */}
-      <View style={styles.headerRow}>
-        <View style={{ flex: 1 }}>
-          <AppText variant="body" tone="muted">{greeting()},</AppText>
-          <AppText variant="h2" weight="bold" numberOfLines={1}>{profile?.displayName ?? 'Friend'}</AppText>
-        </View>
-        <Pressable
-          onPress={() => router.push('/messages')}
-          accessibilityLabel={unreadTotal ? `Messages, ${unreadTotal} unread` : 'Messages'}
-          style={({ pressed }) => [styles.msgBtn, { backgroundColor: colors.surface, borderColor: colors.border }, pressed && { opacity: 0.7 }]}
-        >
-          <Ionicons name="chatbubble-ellipses-outline" size={22} color={colors.primary} />
-          {unreadTotal > 0 ? (
-            <View style={styles.msgBadge}>
-              <AppText variant="overline" weight="bold" style={{ color: '#FFF', fontSize: 10 }}>
-                {unreadTotal > 9 ? '9+' : unreadTotal}
-              </AppText>
-            </View>
-          ) : null}
-        </Pressable>
-      </View>
+      {/* Greeting, with messages + profile on the right (see AppHeader) */}
+      <AppHeader>
+        <AppText variant="body" tone="muted">{greeting()},</AppText>
+        <AppText variant="h2" weight="bold" numberOfLines={1}>{profile?.displayName ?? 'Friend'}</AppText>
+      </AppHeader>
 
       {/* ── PRIMARY: the one action ─────────────────────────────── */}
       <Pressable onPress={() => router.push('/(tabs)/bible')} accessibilityRole="button" accessibilityLabel="Continue today's Bible reading">
@@ -138,9 +121,6 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8, marginBottom: 22 },
-  msgBtn: { width: 46, height: 46, borderRadius: 15, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  msgBadge: { position: 'absolute', top: -4, right: -4, minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 4, backgroundColor: palette.clay, borderWidth: 2, borderColor: '#FBF7EF', alignItems: 'center', justifyContent: 'center' },
   primaryInner: { flex: 1, padding: 20, justifyContent: 'flex-end' },
   eyebrow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   sectionLabel: { marginTop: 34, marginBottom: 14 },

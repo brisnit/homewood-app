@@ -9,6 +9,7 @@ import { Profile, User } from '../types/models';
 const SESSION_KEY = '@homewood/mock-session';
 const PRIVACY_KEY = '@homewood/privacy-accepted';
 const ONBOARD_KEY = '@homewood/onboarding-complete';
+const STANDARDS_KEY = '@homewood/standards-accepted';
 
 export interface MockSession {
   user: User;
@@ -82,7 +83,7 @@ export const mockAuth = {
   },
 
   async signOut(): Promise<void> {
-    await AsyncStorage.multiRemove([SESSION_KEY, PRIVACY_KEY, ONBOARD_KEY]);
+    await AsyncStorage.multiRemove([SESSION_KEY, PRIVACY_KEY, STANDARDS_KEY, ONBOARD_KEY]);
   },
 
   async hasAcceptedPrivacy(): Promise<boolean> {
@@ -95,6 +96,22 @@ export const mockAuth = {
 
   async clearPrivacy(): Promise<void> {
     await AsyncStorage.removeItem(PRIVACY_KEY);
+  },
+
+  /**
+   * Standards of Conduct acceptance, stored as the accepted version string so a
+   * revision re-prompts everyone rather than silently carrying consent forward.
+   */
+  async hasAcceptedStandards(version: string): Promise<boolean> {
+    return (await AsyncStorage.getItem(STANDARDS_KEY)) === version;
+  },
+
+  async setStandardsAccepted(version: string): Promise<void> {
+    await AsyncStorage.setItem(STANDARDS_KEY, version);
+  },
+
+  async clearStandards(): Promise<void> {
+    await AsyncStorage.removeItem(STANDARDS_KEY);
   },
 
   async hasCompletedOnboarding(): Promise<boolean> {

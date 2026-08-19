@@ -3,12 +3,14 @@ import { Profile, User } from '../types/models';
 import { supabase, isSupabaseEnabled } from '../lib/supabase';
 import { mockAuth, MockSession } from './authStore';
 import { config } from '../lib/config';
+import { STANDARDS_VERSION } from '../data/standards';
 
 interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
   initializing: boolean;
   privacyAccepted: boolean;
+  standardsAccepted: boolean;
   onboardingComplete: boolean;
   signedIn: boolean;
   signIn: (email: string, password: string) => Promise<void>;
@@ -16,6 +18,8 @@ interface AuthContextValue {
   signOut: () => Promise<void>;
   acceptPrivacy: () => Promise<void>;
   declinePrivacy: () => Promise<void>; // signs out
+  acceptStandards: () => Promise<void>;
+  declineStandards: () => Promise<void>; // signs out
   completeOnboarding: () => Promise<void>;
   updateProfile: (patch: Partial<Profile>) => void;
 }
@@ -26,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [standardsAccepted, setStandardsAccepted] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [initializing, setInitializing] = useState(true);
 
@@ -44,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(session.user);
             setProfile(session.profile);
             setPrivacyAccepted(await mockAuth.hasAcceptedPrivacy());
+            setStandardsAccepted(await mockAuth.hasAcceptedStandards(STANDARDS_VERSION));
             setOnboardingComplete(await mockAuth.hasCompletedOnboarding());
           }
         }
@@ -75,12 +81,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       learningLevel: 'growing',
     });
     setPrivacyAccepted(false);
+    setStandardsAccepted(false);
   }
 
-  const applyMockSession = (session: MockSession, accepted: boolean) => {
+  const applyMockSession = async (session: MockSession, accepted: boolean) => {
     setUser(session.user);
     setProfile(session.profile);
     setPrivacyAccepted(accepted);
+    setStandardsAccepted(await mockAuth.hasAcceptedStandards(STANDARDS_VERSION));
   };
 
   const signIn = useCallback(async (email: string, password: string) => {
@@ -91,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const session = await mockAuth.signIn(email, password);
-    applyMockSession(session, await mockAuth.hasAcceptedPrivacy());
+    await applyMockSession(session, await mockAuth.hasAcceptedPrivacy());
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, displayName: string) => {
@@ -102,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const session = await mockAuth.signUp(email, password, displayName);
-    applyMockSession(session, false);
+    await applyMockSession(session, false);
   }, []);
 
   const signOut = useCallback(async () => {
@@ -111,6 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setProfile(null);
     setPrivacyAccepted(false);
+    setStandardsAccepted(false);
     setOnboardingComplete(false);
   }, []);
 
@@ -121,6 +130,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const declinePrivacy = useCallback(async () => {
+    await signOut();
+  }, [signOut]);
+
+  const acceptStandards = useCallback(async () => {
+    await mockAuth.setStandardsAccepted(STANDARDS_VERSION);
+    // TODO(supabase): insert into standards_acceptances (user_id, version, accepted_at).
+    setStandardsAccepted(true);
+  }, []);
+
+  /** Declining the community standards means declining to take part. */
+  const declineStandards = useCallback(async () => {
     await signOut();
   }, [signOut]);
 
@@ -142,6 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile,
       initializing,
       privacyAccepted,
+      standardsAccepted,
       onboardingComplete,
       signedIn: user !== null,
       signIn,
@@ -149,10 +170,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signOut,
       acceptPrivacy,
       declinePrivacy,
+      acceptStandards,
+      declineStandards,
       completeOnboarding,
       updateProfile,
     }),
-    [user, profile, initializing, privacyAccepted, onboardingComplete, signIn, signUp, signOut, acceptPrivacy, declinePrivacy, completeOnboarding, updateProfile],
+    [user, profile, initializing, privacyAccepted, standardsAccepted, onboardingComplete, signIn, signUp, signOut, acceptPrivacy, declinePrivacy, acceptStandards, declineStandards, completeOnboarding, updateProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

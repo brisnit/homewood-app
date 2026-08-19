@@ -16,10 +16,10 @@ interface NavItem {
 // Keep in sync with app/(tabs)/_layout.tsx — this bar mirrors it.
 const ITEMS: NavItem[] = [
   { label: 'Home', icon: 'home', href: '/(tabs)' },
-  { label: 'Bible', icon: 'book', href: '/(tabs)/bible' },
+  { label: 'Bible Study', icon: 'people', href: '/(tabs)/bible-study' },
   { label: 'Plans', icon: 'calendar', href: '/(tabs)/plans' },
   { label: 'Media', icon: 'play-circle', href: '/(tabs)/media' },
-  { label: 'Profile', icon: 'person-circle', href: '/(tabs)/you' },
+  { label: 'Bible', icon: 'book', href: '/(tabs)/bible' },
 ];
 
 /**
@@ -50,7 +50,7 @@ export function BottomNav() {
           style={({ pressed }) => [styles.item, pressed && { opacity: 0.6 }]}
         >
           <Ionicons name={item.icon} size={24} color={colors.textMuted} />
-          <AppText style={[styles.label, { color: colors.textMuted, fontFamily: fonts.semibold }]}>
+          <AppText numberOfLines={1} style={[styles.label, { color: colors.textMuted, fontFamily: fonts.semibold }]}>
             {item.label}
           </AppText>
         </Pressable>
@@ -66,5 +66,5 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   item: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3, paddingTop: 2 },
-  label: { fontSize: 12 },
+  label: { fontSize: 11 },
 });

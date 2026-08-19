@@ -48,6 +48,11 @@ export interface MinistryEvent {
   capacity?: number;
   externalRegistrationUrl?: string;
   externalRegistrationLabel?: string; // e.g. "Register on Eventbrite"
+  /**
+   * Handouts, study guides, and prep reading attached in the admin portal.
+   * Shown on the event's detail screen. See AttachedResource below.
+   */
+  resources?: AttachedResource[];
 }
 
 // ─── Photos ─────────────────────────────────────────────────────────────────
@@ -58,6 +63,70 @@ export interface PhotoAlbum {
   cover: ImageKey;
   photos: ImageKey[]; // grid of images
   date: ISODate;
+}
+
+// ─── Bible studies ──────────────────────────────────────────────────────────
+// A Bible study is a group that meets over several sessions. Unlike an event
+// (a single date you RSVP to), a study has a run of weeks, a curriculum, and
+// attached resources people work through together.
+
+export type StudyStatus = 'open' | 'in-progress' | 'completed';
+export type StudyFormat = 'in-person' | 'online' | 'hybrid';
+
+/** One meeting in a study's curriculum. */
+export interface StudySession {
+  id: UUID;
+  sessionNumber: number;
+  title: string;
+  scriptureRef: string;
+  summary: string;
+  date?: ISODate; // when this session meets, if scheduled
+}
+
+/**
+ * A resource attached to a study or an event. `resourceId` points at a
+ * ResourceItem when the material lives in the library; `url` covers a handout
+ * or outside link that doesn't.
+ */
+export interface AttachedResource {
+  id: UUID;
+  title: string;
+  kind: 'curriculum' | 'handout' | 'video' | 'audio' | 'reading' | 'link';
+  description?: string;
+  resourceId?: UUID; // -> ResourceItem
+  url?: string;
+  minutes?: number;
+}
+
+export interface BibleStudy {
+  id: UUID;
+  title: string;
+  leader: string;
+  description: string;
+  image: ImageKey;
+  campus: string;
+  location: string;
+  format: StudyFormat;
+  status: StudyStatus;
+  /** Weekly cadence description, e.g. "Wednesdays · 6:00 PM". */
+  schedule: string;
+  startDate: ISODate;
+  endDate: ISODate;
+  sessionCount: number;
+  /** Members already in the group; capacity null = unlimited. */
+  memberCount: number;
+  capacity: number | null;
+  topics: string[];
+  scriptureFocus: string;
+  /** Curriculum, week by week. */
+  sessions: StudySession[];
+  /** Study guides, handouts, videos — attached in the admin portal. */
+  resources: AttachedResource[];
+  roles?: UserRole[];
+  /** Set when the study has finished; used by the "Past studies" list. */
+  completedAt?: ISODate;
+  /** Recording/notes link for a finished study. */
+  archiveUrl?: string;
 }
 
 // ─── Resources ──────────────────────────────────────────────────────────────

@@ -5,10 +5,11 @@ import { useTheme } from '../../src/theme/ThemeProvider';
 import { fonts } from '../../src/theme/typography';
 
 /**
- * Primary bottom nav: Home · Bible · Plans · Media · Profile.
+ * Primary bottom nav: Home · Bible Study · Plans · Media · Bible.
  *
- * Deliberately five. A sixth (Events) made every target too small on a phone —
- * Events lives on Home's Explore grid, Profile, and More instead.
+ * Deliberately five. Profile moved off the bar to the avatar in AppHeader
+ * (top-right of every tab screen) so Bible Study could take a primary slot —
+ * a sixth tab made every target too small on a phone.
  */
 export default function TabsLayout() {
   const { colors } = useTheme();
@@ -26,7 +27,7 @@ export default function TabsLayout() {
           paddingTop: 8,
           paddingBottom: 30,
         },
-        tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 12 },
+        tabBarLabelStyle: { fontFamily: fonts.semibold, fontSize: 11 },
         tabBarItemStyle: { paddingTop: 2 },
       }}
     >
@@ -35,8 +36,8 @@ export default function TabsLayout() {
         options={{ title: 'Home', tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} /> }}
       />
       <Tabs.Screen
-        name="bible"
-        options={{ title: 'Bible', tabBarIcon: ({ color, size }) => <Ionicons name="book" size={size} color={color} /> }}
+        name="bible-study"
+        options={{ title: 'Bible Study', tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} /> }}
       />
       <Tabs.Screen
         name="plans"
@@ -47,10 +48,12 @@ export default function TabsLayout() {
         options={{ title: 'Media', tabBarIcon: ({ color, size }) => <Ionicons name="play-circle" size={size} color={color} /> }}
       />
       <Tabs.Screen
-        name="you"
-        options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <Ionicons name="person-circle" size={size} color={color} /> }}
+        name="bible"
+        options={{ title: 'Bible', tabBarIcon: ({ color, size }) => <Ionicons name="book" size={size} color={color} /> }}
       />
-      {/* Journal remains a route but moves out of the primary bar (reachable from Home / More). */}
+      {/* Routes that stay reachable but are no longer in the bar:
+          Profile now lives behind the AppHeader avatar; Journal on Home / More. */}
+      <Tabs.Screen name="you" options={{ href: null }} />
       <Tabs.Screen name="journal" options={{ href: null }} />
     </Tabs>
   );

@@ -33,7 +33,10 @@ export default function Profile() {
   return (
     <Screen>
       <View style={styles.topBar}>
-        <AppText variant="h3" weight="bold">Profile</AppText>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <IconButton icon="chevron-back" onPress={() => router.back()} accessibilityLabel="Back" />
+          <AppText variant="h3" weight="bold">Profile</AppText>
+        </View>
         <IconButton icon="settings-outline" onPress={() => router.push('/settings')} accessibilityLabel="Settings" />
       </View>
 
@@ -115,6 +118,18 @@ export default function Profile() {
           <SettingsRow icon="settings-outline" label="Settings" onPress={() => router.push('/settings')} />
         </Card>
       </View>
+
+      {/* Small print — the community agreement, always reachable after signup. */}
+      <View style={styles.fineprint}>
+        <Pressable onPress={() => router.push('/standards')} hitSlop={8}>
+          <AppText variant="caption" tone="muted" center style={styles.fineprintLink}>
+            Standards of Conduct
+          </AppText>
+        </Pressable>
+        <AppText variant="caption" tone="muted" center style={{ marginTop: 4, fontSize: 11 }}>
+          Homewood Living Ministries
+        </AppText>
+      </View>
     </Screen>
   );
 }
@@ -171,6 +186,8 @@ const styles = StyleSheet.create({
   socialBadge: { position: 'absolute', top: -6, right: -10, minWidth: 18, height: 18, borderRadius: 9, paddingHorizontal: 4, backgroundColor: palette.clay, alignItems: 'center', justifyContent: 'center' },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   infoIcon: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  fineprint: { alignItems: 'center', marginTop: 28, marginBottom: 8 },
+  fineprintLink: { fontSize: 12, textDecorationLine: 'underline' },
   statsRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
   stat: { flex: 1, alignItems: 'center', paddingVertical: 16, borderRadius: 16, borderWidth: 1 },
 });

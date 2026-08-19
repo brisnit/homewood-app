@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Screen, AppText, Chip, SectionHeader, Divider } from '../../src/components/ui';
+import { Screen, AppHeader, AppText, Chip, SectionHeader, Divider } from '../../src/components/ui';
 import { MediaCard } from '../../src/components/content/MediaCard';
 import { EpisodeCard } from '../../src/components/content/EpisodeCard';
 import { MEDIA_ITEMS } from '../../src/data/homewoodData';
@@ -39,10 +39,10 @@ export default function Media() {
 
   return (
     <Screen>
-      <View style={{ marginTop: 4, marginBottom: 14 }}>
-        <AppText variant="h3" weight="bold">Media</AppText>
-        <AppText tone="muted" style={{ marginTop: 4 }}>Teachings, sermons, and worship for every day.</AppText>
-      </View>
+      <AppHeader title="Media" />
+      <AppText tone="muted" style={{ marginTop: -8, marginBottom: 16 }}>
+        Teachings, sermons, and worship for every day.
+      </AppText>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips} style={{ marginBottom: 16 }}>
         {FILTERS.map((f) => (

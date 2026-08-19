@@ -7,6 +7,7 @@ export { BrandMark } from './BrandMark';
 export { HomewoodImage } from './HomewoodImage';
 export { BottomNav } from './BottomNav';
 export { Screen } from './Screen';
+export { AppHeader } from './AppHeader';
 export { SectionHeader } from './SectionHeader';
 export { ProgressBar } from './ProgressBar';
 export { StatItem } from './StatItem';

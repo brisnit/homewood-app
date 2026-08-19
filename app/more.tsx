@@ -19,6 +19,7 @@ interface Entry {
 
 const ENTRIES: Entry[] = [
   { label: 'Bible', description: 'Read the full Bible', icon: 'book', href: '/(tabs)/bible', tint: palette.navy, capability: 'daily-bible' },
+  { label: 'Bible Study', description: 'Join a group study', icon: 'people', href: '/(tabs)/bible-study', tint: palette.pine },
   { label: 'Study Bible', description: 'Commentary, cross references & study', icon: 'library', href: '/study', tint: palette.slate, capability: 'study-bible' },
   { label: 'Reading Plans', description: 'Read the Bible in a year', icon: 'calendar', href: '/(tabs)/plans', tint: palette.pine, capability: 'plans' },
   { label: 'Resources', description: 'Bible studies, discipleship & academy', icon: 'school', href: '/resources', tint: palette.brass, capability: 'resources' },

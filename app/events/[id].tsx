@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import { Screen, AppText, Button, Card, IconButton, HomewoodImage, EmptyState, Divider } from '../../src/components/ui';
+import { AttachedResources } from '../../src/components/content/AttachedResources';
 import { MINISTRY_EVENTS } from '../../src/data/homewoodData';
 import { useSaved } from '../../src/state/SavedProvider';
 import { useRsvp } from '../../src/state/RsvpProvider';
@@ -94,6 +95,13 @@ export default function EventDetail() {
         <AppText weight="bold" style={{ marginBottom: 6 }}>About this event</AppText>
         <AppText tone="muted" style={{ lineHeight: 26 }}>{event.description}</AppText>
       </Card>
+
+      {/* Handouts and prep reading attached to this event in the admin portal. */}
+      <AttachedResources
+        resources={event.resources ?? []}
+        title="Resources for this event"
+        subtitle="Materials to read ahead of time or bring along."
+      />
 
       {/* ── Registration ─────────────────────────────────────────── */}
       {method === 'rsvp' ? (

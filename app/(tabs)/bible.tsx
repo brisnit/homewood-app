@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import {
   Screen,
+  AppHeader,
   AppText,
   Card,
   Button,
@@ -49,15 +50,12 @@ export default function Bible() {
 
   return (
     <Screen>
+      <AppHeader title="Bible" />
+
       <View style={styles.header}>
-        <View style={{ flex: 1 }}>
-          <AppText variant="h3" weight="bold">
-            Bible
-          </AppText>
-          <AppText tone="muted" style={{ marginTop: 4 }}>
-            One year. The whole story.
-          </AppText>
-        </View>
+        <AppText tone="muted" style={{ flex: 1 }}>
+          One year. The whole story.
+        </AppText>
         <Pressable
           onPress={() => setPickerOpen(true)}
           style={[styles.versionBtn, { backgroundColor: colors.surfaceAlt }]}

@@ -3,6 +3,7 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import {
   Screen,
+  AppHeader,
   AppText,
   Chip,
   Field,
@@ -37,11 +38,7 @@ export default function Plans() {
 
   return (
     <Screen>
-      <View style={{ marginTop: 4, marginBottom: 14 }}>
-        <AppText variant="h3" weight="bold">
-          Discover
-        </AppText>
-      </View>
+      <AppHeader title="Discover" />
 
       <Field icon="search-outline" placeholder="Search plans" autoCapitalize="none" value={query} onChangeText={setQuery} />
 
