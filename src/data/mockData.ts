@@ -5,7 +5,6 @@
  */
 import {
   Badge,
-  BibleReadingDay,
   Devotional,
   DevotionalCategory,
   DevotionalCategoryKey,
@@ -242,31 +241,6 @@ export const SUGGESTED_FRIENDS: SuggestedFriend[] = [
 ];
 
 // ─── Bible-in-a-year plan ───────────────────────────────────────────────────
-const OT_BOOKS = ['Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', '1 Samuel', '2 Samuel', '1 Kings'];
-const NT_BOOKS = ['Matthew', 'Mark', 'Luke', 'John', 'Acts', 'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians'];
-
-/** A representative slice of a 365-day plan. In production this is seeded in the DB. */
-export function makeBibleYear(): BibleReadingDay[] {
-  return Array.from({ length: 365 }, (_, i) => {
-    const day = i + 1;
-    const otBook = OT_BOOKS[i % OT_BOOKS.length];
-    const ntBook = NT_BOOKS[i % NT_BOOKS.length];
-    const otCh = (i % 3) * 2 + 1;
-    const ntCh = (i % 4) + 1;
-    const psalm = day;
-    return {
-      id: `bry-${day}`,
-      dayNumber: day,
-      oldTestament: { reference: `${otBook} ${otCh}–${otCh + 1}`, book: otBook, startChapter: otCh, endChapter: otCh + 1 },
-      newTestament: { reference: `${ntBook} ${ntCh}`, book: ntBook, startChapter: ntCh, endChapter: ntCh },
-      psalmOrProverb:
-        day % 2 === 0
-          ? { reference: `Psalm ${(psalm % 150) + 1}`, book: 'Psalms', startChapter: (psalm % 150) + 1, endChapter: (psalm % 150) + 1 }
-          : { reference: `Proverbs ${(day % 31) + 1}`, book: 'Proverbs', startChapter: (day % 31) + 1, endChapter: (day % 31) + 1 },
-    };
-  });
-}
-
 export const TRANSLATIONS = ['NIV', 'ESV', 'KJV', 'NLT', 'CSB', 'NKJV'] as const;
 
 // ─── You-screen content ─────────────────────────────────────────────────────

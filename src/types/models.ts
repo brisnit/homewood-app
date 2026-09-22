@@ -128,12 +128,31 @@ export interface VerseOfTheDay {
 }
 
 // ─── Bible reading plan (read-the-Bible-in-a-year) ──────────────────────────
+/** The three classic ways to get through the Bible in 365 days. */
+export type BibleReadingPlanId = 'canonical' | 'chronological' | 'blended';
+
+export interface BibleReadingPlanMeta {
+  id: BibleReadingPlanId;
+  name: string; // "Genesis → Revelation"
+  method: string; // "Canonical"
+  summary: string; // one line, for the picker row
+  description: string; // the fuller explanation
+  /** What a day looks like, e.g. "Genesis 12–13 · Matthew 6 · Psalm 6 · Proverbs 2". */
+  sample: string;
+}
+
+/** One labelled reading inside a day ("Old Testament", "Gospels", …). */
+export interface BibleReadingSegment {
+  label: string;
+  passage: BiblePassageRef;
+}
+
 export interface BibleReadingDay {
   id: UUID;
   dayNumber: number; // 1..365
-  oldTestament: BiblePassageRef;
-  newTestament: BiblePassageRef;
-  psalmOrProverb: BiblePassageRef | null;
+  planId: BibleReadingPlanId;
+  /** Everything to read today, in order. Shape varies by plan. */
+  segments: BibleReadingSegment[];
 }
 
 export interface BiblePassageRef {

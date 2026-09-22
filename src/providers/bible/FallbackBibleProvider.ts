@@ -1,6 +1,6 @@
 import { BibleProvider, BiblePassage, BibleVerse, BibleVersion } from './types';
 import { MockBibleProvider } from './MockBibleProvider';
-import { BibleReadingDay } from '../../types/models';
+import { BibleReadingDay, BibleReadingPlanId, BibleReadingPlanMeta } from '../../types/models';
 import { getChapterVerses, BIBLE_VERSION } from '../../data/bibleText';
 
 /**
@@ -82,11 +82,14 @@ export class FallbackBibleProvider implements BibleProvider {
     return Promise.resolve(VERSIONS);
   }
 
-  getReadingPlan(): Promise<BibleReadingDay[]> {
-    return this.mock.getReadingPlan();
+  getReadingPlans(): Promise<BibleReadingPlanMeta[]> {
+    return this.mock.getReadingPlans();
   }
-  getReadingDay(dayNumber: number): Promise<BibleReadingDay | null> {
-    return this.mock.getReadingDay(dayNumber);
+  getReadingPlan(planId: BibleReadingPlanId): Promise<BibleReadingDay[]> {
+    return this.mock.getReadingPlan(planId);
+  }
+  getReadingDay(planId: BibleReadingPlanId, dayNumber: number): Promise<BibleReadingDay | null> {
+    return this.mock.getReadingDay(planId, dayNumber);
   }
 
   async getPassage(reference: string, _translation: string): Promise<BiblePassage> {

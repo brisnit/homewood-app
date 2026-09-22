@@ -1,6 +1,6 @@
 import { BibleProvider, BiblePassage, BibleVersion } from './types';
-import { makeBibleYear } from '../../data/mockData';
-import { BibleReadingDay } from '../../types/models';
+import { BIBLE_PLANS, getPlanDay, getPlanDays } from '../../data/bibleReadingPlans';
+import { BibleReadingDay, BibleReadingPlanId, BibleReadingPlanMeta } from '../../types/models';
 
 const delay = <T>(value: T, ms = 250): Promise<T> =>
   new Promise((resolve) => setTimeout(() => resolve(value), ms));
@@ -25,18 +25,21 @@ const SAMPLE_VERSES = [
 
 export class MockBibleProvider implements BibleProvider {
   readonly name = 'mock';
-  private plan = makeBibleYear();
 
   getVersions() {
     return delay(VERSIONS);
   }
 
-  getReadingPlan() {
-    return delay(this.plan);
+  getReadingPlans(): Promise<BibleReadingPlanMeta[]> {
+    return delay(BIBLE_PLANS);
   }
 
-  getReadingDay(dayNumber: number): Promise<BibleReadingDay | null> {
-    return delay(this.plan.find((d) => d.dayNumber === dayNumber) ?? null);
+  getReadingPlan(planId: BibleReadingPlanId): Promise<BibleReadingDay[]> {
+    return delay(getPlanDays(planId));
+  }
+
+  getReadingDay(planId: BibleReadingPlanId, dayNumber: number): Promise<BibleReadingDay | null> {
+    return delay(getPlanDay(planId, dayNumber));
   }
 
   getPassage(reference: string, translation: string): Promise<BiblePassage> {

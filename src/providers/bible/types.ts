@@ -1,4 +1,4 @@
-import { BibleReadingDay } from '../../types/models';
+import { BibleReadingDay, BibleReadingPlanId, BibleReadingPlanMeta } from '../../types/models';
 
 export interface BiblePassage {
   reference: string;
@@ -31,9 +31,11 @@ export interface BibleVersion {
 export interface BibleProvider {
   readonly name: string;
   getVersions(): Promise<BibleVersion[]>;
-  /** The 365-day "Bible in a year" schedule. */
-  getReadingPlan(): Promise<BibleReadingDay[]>;
-  getReadingDay(dayNumber: number): Promise<BibleReadingDay | null>;
+  /** The reading methods a member can choose between (canonical, chronological, blended). */
+  getReadingPlans(): Promise<BibleReadingPlanMeta[]>;
+  /** The 365-day "Bible in a year" schedule for one method. */
+  getReadingPlan(planId: BibleReadingPlanId): Promise<BibleReadingDay[]>;
+  getReadingDay(planId: BibleReadingPlanId, dayNumber: number): Promise<BibleReadingDay | null>;
   getPassage(reference: string, translation: string): Promise<BiblePassage>;
   /** Whether the given version exposes audio. */
   hasAudio(translation: string): Promise<boolean>;

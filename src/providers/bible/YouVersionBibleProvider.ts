@@ -1,6 +1,6 @@
 import { BibleProvider, BiblePassage, BibleVersion } from './types';
 import { FallbackBibleProvider } from './FallbackBibleProvider';
-import { BibleReadingDay } from '../../types/models';
+import { BibleReadingDay, BibleReadingPlanId, BibleReadingPlanMeta } from '../../types/models';
 import { config } from '../../lib/config';
 
 /**
@@ -39,11 +39,14 @@ export class YouVersionBibleProvider implements BibleProvider {
   }
 
   // The 365-day schedule is Homewood-owned (YouVersion plans may differ/relicense).
-  getReadingPlan(): Promise<BibleReadingDay[]> {
-    return this.fallback.getReadingPlan();
+  getReadingPlans(): Promise<BibleReadingPlanMeta[]> {
+    return this.fallback.getReadingPlans();
   }
-  getReadingDay(dayNumber: number): Promise<BibleReadingDay | null> {
-    return this.fallback.getReadingDay(dayNumber);
+  getReadingPlan(planId: BibleReadingPlanId): Promise<BibleReadingDay[]> {
+    return this.fallback.getReadingPlan(planId);
+  }
+  getReadingDay(planId: BibleReadingPlanId, dayNumber: number): Promise<BibleReadingDay | null> {
+    return this.fallback.getReadingDay(planId, dayNumber);
   }
 
   async getPassage(reference: string, translation: string): Promise<BiblePassage> {
